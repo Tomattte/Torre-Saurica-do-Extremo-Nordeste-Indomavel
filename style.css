@@ -1,0 +1,10 @@
+body {
+    background-color: black;
+}
+
+#canvas {
+    width: "320";
+    height: "180";
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
