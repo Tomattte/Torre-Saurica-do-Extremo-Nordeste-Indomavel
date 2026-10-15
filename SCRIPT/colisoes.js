@@ -1,5 +1,5 @@
 // Cria um tiro novo e joga-o para dentro da nossa lista de tiros ativos
-function criarProjectil(x, y, direcao) {
+export function criarProjectil(x, y, direcao) {
     projecteis.push({
         x: x,                         // Onde o tiro começa na horizontal
         y: y,                         // Onde o tiro começa na vertical
@@ -11,7 +11,7 @@ function criarProjectil(x, y, direcao) {
 }
 
 // Atualiza a posição de cada tiro e apaga os que já saíram da tela
-function atualizarProjecteis(larguraCanvas) {
+export function atualizarProjecteis(larguraCanvas) {
     // Percorremos a lista de trás para a frente para evitar bugs de índice ao remover itens
     for (let i = projecteis.length - 1; i >= 0; i--) {
         const p = projecteis[i];
@@ -31,7 +31,7 @@ function atualizarProjecteis(larguraCanvas) {
 }
 
 // Desenha todos os tiros ativos na tela
-function desenharProjecteis() {
+export function desenharProjecteis() {
     ctx.fillStyle = 'red'; // Pinta o tiro de vermelho
 
     projecteis.forEach(p => {
