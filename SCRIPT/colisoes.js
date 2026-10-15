@@ -1,11 +1,3 @@
-// Pega o canvas correto usando o ID "canvas" do HTML
-const canvas = document.getElementById('canvas');//tinha colocado outro
-//codigo super comentado pra taniro
-const ctx = canvas.getContext('2d');
-
-// Lista para guardar todos os tiros ativos na tela
-const projecteis = [];
-
 // Cria um tiro novo e joga-o para dentro da nossa lista de tiros ativos
 function criarProjectil(x, y, direcao) {
     projecteis.push({
