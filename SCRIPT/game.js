@@ -1,3 +1,22 @@
+// IMPORTS
+
+// players.js
+
+// inimigos.js
+
+// colisoes.js
+
+import { criarProjectil } from './colisoes.js';
+import { atualizarProjecteis } from './colisoes.js';
+import { desenharProjecteis } from './colisoes.js'
+
+// Lista para guardar todos os tiros ativos na tela
+const projecteis = [];
+
+/*--------------------------------------------------------------------*/
+
+// CANVAS CONFIGURATION 
+
 const canvas = document.getElementById("canvas");
 const c = canvas.getContext('2d');
 
@@ -41,3 +60,5 @@ window.addEventListener('load', resizeGame);
 
 // Resizes on window size change
 window.addEventListener('resize', resizeGame);
+
+/*--------------------------------------------------------------------*/
