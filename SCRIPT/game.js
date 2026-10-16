@@ -1,5 +1,9 @@
 // IMPORTS
 
+// assetloader.js
+
+import { carregarImagens, IMGS } from './assetloader.js';
+
 // players.js
 
 import { Player } from './player.js';
@@ -75,6 +79,8 @@ window.addEventListener('resize', resizeGame);
 
 /*--------------------------------------------------------------------*/
 
+// CONTROLES DO PLAYER
+
 window.addEventListener("keydown", (event) =>
 {
     //Player 1
@@ -138,6 +144,20 @@ window.addEventListener("keyup", (event) =>
     if (event.key === "k") jogador2.andandoEsquerda = false;
     if (event.key === "u") p2 = false;
 })
+
+/*--------------------------------------------------------------------*/
+
+function init() {
+
+    // Chama a função que carrega os assets
+
+    carregarImagens(() => {
+        // Assim que o navegador baixar tudo, chama a função animate e inicia o loop
+        
+        console.log("Jogo pronto");
+        requestAnimationFrame(animate);
+    });
+}
 
 function animate()
 {
