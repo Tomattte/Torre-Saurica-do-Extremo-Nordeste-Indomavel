@@ -4,6 +4,10 @@
 
 import { carregarImagens, IMGS } from './assetloader.js';
 
+// sprite.js
+
+import { Sprite } from './sprite.js';
+
 // players.js
 
 import { Player } from './player.js';
@@ -13,6 +17,15 @@ const jogador = new Player(10, 0, "blue");
 const jogador2 = new Player(310, 0, "red");
 jogador2.width = 32;
 jogador2.height = 32;
+
+//TENTANDO CRIAR A PLATAFORMA
+const background = new Sprite({
+    position: {
+        x: 0,
+        y: 0
+    },
+    imageSrc: './ASSETS/Platform_teste.jpg'
+})
 
 // inimigos.js
 
@@ -34,8 +47,11 @@ const ctx = canvas.getContext('2d');
 
 // Variables to store the original canvas size
 
-const C_WIDTH = canvas.width;
-const C_HEIGHT = canvas.height;
+const C_WIDTH = 640; // canvas.width; (Anterior)
+const C_HEIGHT = 384; // canvas.height; (Anterior)
+
+canvas.width = C_WIDTH; // TESTE
+canvas.height = C_HEIGHT; // TESTE
 
 /*
 const MenuIMG = new Image();
@@ -167,6 +183,8 @@ function animate()
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
+    //TESTE PLATAFORMA
+    background.update(ctx); // PLAT
     jogador.update();
     jogador.draw(ctx);
 
