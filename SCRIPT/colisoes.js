@@ -38,3 +38,28 @@ export function desenharProjecteis() {
         ctx.fillRect(p.x, p.y, p.largura, p.altura);
     });
 }
+
+//task dia 3 : usar AABB com javascripto puro 
+//sistema de colisoes reutilizavel
+//A função verificarColisao espera dois objetos que contenham as coordenadas de posição 
+// e dimensões (x, y, largura e altura)
+// e retorna true caso estejam colidindo, ou false caso contrário.
+export function verificarColisao(ret1, ret2) {
+    return (
+        ret1.x < ret2.x + ret2.largura && //O retângulo A está totalmente à direita do retângulo B.
+        ret1.x + ret1.largura > ret2.x &&  //O retângulo A está totalmente à esquerda do retângulo B.
+        ret1.y < ret2.y + ret2.altura && //O retângulo A está totalmente abaixo do retângulo B.
+        ret1.y + ret1.altura > ret2.y  //O retângulo A está totalmente acima do retângulo B.
+    );
+}
+
+//aires irei mandar exemplo de como usar ele no game.js
+//// Exemplo de teste simples ou verificação entre objetos do jogo:
+//const colidiu = verificarColisao(
+//    { x: projetil.x, y: projetil.y, largura: projetil.largura, altura: projetil.altura },
+  //  { x: jogador.posicaoX, y: jogador.posicaoY, largura: jogador.width, altura: jogador.height }
+//);
+
+//if (colidiu) {
+ //   console.log("Colisão detectada!");
+//}
