@@ -28,12 +28,20 @@ const background = new Sprite({
 })
 
 // inimigos.js
-
 // colisoes.js
 
-import { criarProjectil } from './colisoes.js';
-import { atualizarProjecteis } from './colisoes.js';
-import { desenharProjecteis } from './colisoes.js'
+import { 
+    criarProjectil, 
+    atualizarProjecteis, 
+    desenharProjecteis, 
+    processarColisoesProjeteisInimigos,
+    processarColisoesJogadorInimigos 
+} from './colisoes.js';
+
+// inimigos temporarios dia4
+let inimigos = [
+    { x: 300, y: 100, largura: 30, altura: 30, derrotado: false }
+];
 
 // Lista para guardar todos os tiros ativos na tela
 const projecteis = [];
@@ -149,7 +157,30 @@ window.addEventListener("keydown", (event) =>
         }
     }
 
-})
+    // Disparo com a Barra de Espaço , pessoa 4 eu mateus
+    if (event.code === "Space") {
+        if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
+        // demorei umas 3 horas pra isso ficar redondo
+        // Cria o projétil na posição atual do jogador, ajustando a direção
+        const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
+        // Ajusta a posição inicial para sair à frente do jogador
+        const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
+        
+        criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
+    }
+
+
+    // Disparo para o jogador2 (exemplo com a tecla "M")
+    if (event.code === "KeyM") {
+        if (event.repeat) return;
+        
+        const direcaoTiroP2 = jogador2.viradoPra === -1 ? 'esquerda' : 'direita';
+        const posX2 = jogador2.viradoPra === -1 ? jogador2.posicaoX - 10 : jogador2.posicaoX + jogador2.width;
+        
+        criarProjectil(projecteis, posX2, jogador2.posicaoY + 10, direcaoTiroP2);
+    }
+
+});
 
 window.addEventListener("keyup", (event) =>
 {
@@ -159,7 +190,7 @@ window.addEventListener("keyup", (event) =>
     if (event.key === "ç") jogador2.andandoDireita = false;
     if (event.key === "k") jogador2.andandoEsquerda = false;
     if (event.key === "u") p2 = false;
-})
+});
 
 /*--------------------------------------------------------------------*/
 
@@ -193,6 +224,27 @@ function animate()
         jogador2.update();
         jogador2.draw(ctx);
     }
+
+    //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
+    atualizarProjecteis(projecteis, C_WIDTH);
+
+    processarColisoesProjeteisInimigos(projecteis, inimigos);
+
+    processarColisoesJogadorInimigos(jogador, inimigos, () => {
+        console.log("O jogador foi atingido pelo inimigo!");
+        // Aqui podes chamar a função de perder vida da Pessoa 5 futuramente
+    });
+
+    inimigos = inimigos.filter(i => !i.derrotado);
+
+    desenharProjecteis(projecteis, ctx);
+
+    console.log("Quantidade de tiros ativos:", projecteis.length);      
+
+    inimigos.forEach(inimigo => {
+        ctx.fillStyle = "purple";
+        ctx.fillRect(inimigo.x, inimigo.y, inimigo.largura, inimigo.altura);
+    });
 }
 
 animate();
