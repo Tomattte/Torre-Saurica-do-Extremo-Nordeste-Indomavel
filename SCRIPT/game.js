@@ -4,30 +4,29 @@
 
 import { carregarImagens, IMGS } from './assetloader.js';
 
-// sprite.js
+// mapas
 
-import { Sprite } from './sprite.js';
+import { MAPA1 } from '../MAPAS/MAPA1.js';
+import { MAPA2 } from '../MAPAS/MAPA2.js';
+import { MAPA3 } from '../MAPAS/MAPA3.js';
+
+// background.js
+
+import { backgrounds } from './backgrounds.js';
+import { desenharMapa } from './backgrounds.js';
 
 // players.js
 
 import { Player } from './player.js';
 
 let p2 = false;
-const jogador = new Player(10, 0, "blue");
-const jogador2 = new Player(310, 0, "red");
-jogador2.width = 32;
-jogador2.height = 32;
-
-//TENTANDO CRIAR A PLATAFORMA
-const background = new Sprite({
-    position: {
-        x: 0,
-        y: 0
-    },
-    imageSrc: './ASSETS/Platform_teste.jpg'
-})
+let jogador;
+let jogador2;
+let gameState = "Menu";
+let backgroundAtual;
 
 // inimigos.js
+
 // colisoes.js
 
 import { 
@@ -38,13 +37,14 @@ import {
     processarColisoesJogadorInimigos 
 } from './colisoes.js';
 
+// Lista para guardar todos os tiros ativos na tela
+const projecteis = [];
+
+
 // inimigos temporarios dia4
 let inimigos = [
     { x: 300, y: 100, largura: 30, altura: 30, derrotado: false }
 ];
-
-// Lista para guardar todos os tiros ativos na tela
-const projecteis = [];
 
 /*--------------------------------------------------------------------*/
 
@@ -55,61 +55,8 @@ const ctx = canvas.getContext('2d');
 
 // Variables to store the original canvas size
 
-const C_WIDTH = 640; // canvas.width; (Anterior)
-const C_HEIGHT = 384; // canvas.height; (Anterior)
-background.update(ctx, "MAPA1");
-
-canvas.width = C_WIDTH; // TESTE
-canvas.height = C_HEIGHT; // TESTE
-
-// CONFIGURAÇÃO DO MAPA TILED
-const tilesetImage = new Image();
-tilesetImage.src = './ASSETS/MAPA1.png';
-
-function desenharMapa(ctx, nomeMapa) {
-    const mapa = window.TileMaps ? window.TileMaps["MAPA1"] : null;
-    if (!mapa) return;
-
-    const tileSize = 32;
-    const colunasMapa = mapa.width || Math.floor(C_WIDTH / tileSize);
-
-    mapa.layers.forEach((layer) => {
-        if (layer.type === 'tilelayer' || layer.data) {
-            const data = layer.data;
-
-            for (let i = 0; i < data.length; i++) {
-                const tileId = data[i];
-                if (tileId === 0) continue; // PULA OS BLOCO
-
-                const x = (i % colunasMapa) * tileSize;
-                const y = Math.floor(i / colunasMapa) * tileSize;
-
-                if (tilesetImage.complete && tilesetImage.naturalWidth !== 0) {
-                    const colunasTileset = Math.floor(tilesetImage.width / tileSize);
-                    const srcX = ((tileId - 1) % colunasTileset) * tileSize;
-                    const srcY = Math.floor((tileId - 1) / colunasTileset) * tileSize;
-
-                    ctx.drawImage(
-                        tilesetImage,
-                        srcX, srcY, tileSize, tileSize,
-                        x, y, tileSize, tileSize
-                    );
-                } else {
-                    ctx.fillStyle = "#555555";
-                    ctx.fillRect(x, y, tileSize, tileSize);
-                }
-            }
-        }
-    });
-}
-/*--------------------------------------------------------------------*/
-
-/*
-const MenuIMG = new Image();
-MenuIMG.src = 'IMG/Menu_prototipo.png';
-
-c.drawImage(MenuIMG, 0, 0)
-*/
+const C_WIDTH = canvas.width;
+const C_HEIGHT = canvas.height;
 
 function resizeGame() {
 
@@ -150,6 +97,11 @@ window.addEventListener('resize', resizeGame);
 
 window.addEventListener("keydown", (event) =>
 {
+    if (event.key === "Enter" && gameState === "Menu") {
+        gameState = "Jogo";
+        
+        //backgroundAtual.image = IMGS.plataforma;
+    }
     //Player 1
     if (event.key === "w") jogador.pular();
     if (event.key === "d") 
@@ -172,6 +124,17 @@ window.addEventListener("keydown", (event) =>
             jogador.andandoDireita = false;
             jogador.colldowndash = 120;
         }
+    }
+    // Disparo com a Barra de Espaço , pessoa 4 eu mateus
+    if (event.code === "Space") {
+        if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
+        // demorei umas 3 horas pra isso ficar redondo
+        // Cria o projétil na posição atual do jogador, ajustando a direção
+        const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
+        // Ajusta a posição inicial para sair à frente do jogador
+        const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
+        
+        criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
     }
 
     //Player 2
@@ -199,20 +162,6 @@ window.addEventListener("keydown", (event) =>
             jogador2.colldowndash = 120;
         }
     }
-
-    // Disparo com a Barra de Espaço , pessoa 4 eu mateus
-    if (event.code === "Space") {
-        if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
-        // demorei umas 3 horas pra isso ficar redondo
-        // Cria o projétil na posição atual do jogador, ajustando a direção
-        const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
-        // Ajusta a posição inicial para sair à frente do jogador
-        const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
-        
-        criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
-    }
-
-
     // Disparo para o jogador2 (exemplo com a tecla "M")
     if (event.code === "KeyM") {
         if (event.repeat) return;
@@ -223,7 +172,7 @@ window.addEventListener("keydown", (event) =>
         criarProjectil(projecteis, posX2, jogador2.posicaoY + 10, direcaoTiroP2);
     }
 
-});
+})
 
 window.addEventListener("keyup", (event) =>
 {
@@ -233,7 +182,7 @@ window.addEventListener("keyup", (event) =>
     if (event.key === "ç") jogador2.andandoDireita = false;
     if (event.key === "k") jogador2.andandoEsquerda = false;
     if (event.key === "u") p2 = false;
-});
+})
 
 /*--------------------------------------------------------------------*/
 
@@ -243,6 +192,10 @@ function init() {
 
     carregarImagens(() => {
         // Assim que o navegador baixar tudo, chama a função animate e inicia o loop
+
+        jogador = new Player(10, 0, "blue");
+        jogador2 = new Player(310, 0, "red");
+        backgroundAtual = new backgrounds({image: IMGS.menu});
         
         console.log("Jogo pronto");
         requestAnimationFrame(animate);
@@ -253,42 +206,58 @@ function animate()
 {
     requestAnimationFrame(animate);
 
+    // Limpa o canvas
+
     ctx.clearRect (0, 0, canvas.width, canvas.height);
+
+    // Desenha um fundo branco
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
-    desenharMapa(ctx, "MAPA1"); // DESENHA O MAPA E N PODE TER O BACKGROUND
-    //TESTE PLATAFORMA
-    //background.update(ctx); // COMENTADO PARA TESTES
-    jogador.update();
-    jogador.draw(ctx);
 
-    if (p2 === true) 
-    {
-        jogador2.update();
-        jogador2.draw(ctx);
+    if (gameState === "Menu") {
+        
+        backgroundAtual.update(ctx); 
+
+    } else {
+
+        // Desenha o background atual
+
+        desenharMapa(ctx, MAPA1, IMGS.MAPA1);
+
+        //Desenha o player se o jogo tiver começado
+
+        jogador.update();
+        jogador.draw(ctx);
+
+        if (p2 === true) 
+        {
+            jogador2.update();
+            jogador2.draw(ctx);
+        }
+
+        //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
+        
+        atualizarProjecteis(projecteis, C_WIDTH);
+
+        processarColisoesProjeteisInimigos(projecteis, inimigos);
+
+        processarColisoesJogadorInimigos(jogador, inimigos, () => {
+            console.log("O jogador foi atingido pelo inimigo!");
+            // Aqui podes chamar a função de perder vida da Pessoa 5 futuramente
+        });
+
+        inimigos = inimigos.filter(i => !i.derrotado);
+
+        desenharProjecteis(projecteis, ctx);
+
+        console.log("Quantidade de tiros ativos:", projecteis.length);      
+
+        inimigos.forEach(inimigo => {
+            ctx.fillStyle = "purple";
+            ctx.fillRect(inimigo.x, inimigo.y, inimigo.largura, inimigo.altura);
+        });
     }
-
-    //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
-    atualizarProjecteis(projecteis, C_WIDTH);
-
-    processarColisoesProjeteisInimigos(projecteis, inimigos);
-
-    processarColisoesJogadorInimigos(jogador, inimigos, () => {
-        console.log("O jogador foi atingido pelo inimigo!");
-        // Aqui podes chamar a função de perder vida da Pessoa 5 futuramente
-    });
-
-    inimigos = inimigos.filter(i => !i.derrotado);
-
-    desenharProjecteis(projecteis, ctx);
-
-    console.log("Quantidade de tiros ativos:", projecteis.length);      
-
-    inimigos.forEach(inimigo => {
-        ctx.fillStyle = "purple";
-        ctx.fillRect(inimigo.x, inimigo.y, inimigo.largura, inimigo.altura);
-    });
 }
 
-animate();
+init();
