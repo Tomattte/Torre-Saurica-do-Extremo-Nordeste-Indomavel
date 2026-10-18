@@ -6,7 +6,10 @@ export const IMGS = {};
 
 const loadList = [
     { nome: 'menu', src: 'ASSETS/Menu_prototipo.png' },
-    { nome: 'player', src: 'ASSETS/player_sprite.png' }
+    //{ nome: 'player', src: 'ASSETS/player_sprite.png' },
+    { nome: 'MAPA1', src: 'ASSETS/MAPA1.png'},
+    { nome: 'MAPA2', src: 'ASSETS/MAPA2.png'},
+    { nome: 'MAPA3', src: 'ASSETS/MAPA3.png'}
 ];
 
 // Função que carrega os assets e então começa o jogo
