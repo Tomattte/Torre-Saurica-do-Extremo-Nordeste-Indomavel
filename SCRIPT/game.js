@@ -57,9 +57,52 @@ const ctx = canvas.getContext('2d');
 
 const C_WIDTH = 640; // canvas.width; (Anterior)
 const C_HEIGHT = 384; // canvas.height; (Anterior)
+background.update(ctx, "MAPA1");
 
 canvas.width = C_WIDTH; // TESTE
 canvas.height = C_HEIGHT; // TESTE
+
+// CONFIGURAÇÃO DO MAPA TILED
+const tilesetImage = new Image();
+tilesetImage.src = './ASSETS/MAPA1.png';
+
+function desenharMapa(ctx, nomeMapa) {
+    const mapa = window.TileMaps ? window.TileMaps["MAPA1"] : null;
+    if (!mapa) return;
+
+    const tileSize = 32;
+    const colunasMapa = mapa.width || Math.floor(C_WIDTH / tileSize);
+
+    mapa.layers.forEach((layer) => {
+        if (layer.type === 'tilelayer' || layer.data) {
+            const data = layer.data;
+
+            for (let i = 0; i < data.length; i++) {
+                const tileId = data[i];
+                if (tileId === 0) continue; // PULA OS BLOCO
+
+                const x = (i % colunasMapa) * tileSize;
+                const y = Math.floor(i / colunasMapa) * tileSize;
+
+                if (tilesetImage.complete && tilesetImage.naturalWidth !== 0) {
+                    const colunasTileset = Math.floor(tilesetImage.width / tileSize);
+                    const srcX = ((tileId - 1) % colunasTileset) * tileSize;
+                    const srcY = Math.floor((tileId - 1) / colunasTileset) * tileSize;
+
+                    ctx.drawImage(
+                        tilesetImage,
+                        srcX, srcY, tileSize, tileSize,
+                        x, y, tileSize, tileSize
+                    );
+                } else {
+                    ctx.fillStyle = "#555555";
+                    ctx.fillRect(x, y, tileSize, tileSize);
+                }
+            }
+        }
+    });
+}
+/*--------------------------------------------------------------------*/
 
 /*
 const MenuIMG = new Image();
@@ -214,8 +257,9 @@ function animate()
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
+    desenharMapa(ctx, "MAPA1"); // DESENHA O MAPA E N PODE TER O BACKGROUND
     //TESTE PLATAFORMA
-    background.update(ctx); // PLAT
+    //background.update(ctx); // COMENTADO PARA TESTES
     jogador.update();
     jogador.draw(ctx);
 
