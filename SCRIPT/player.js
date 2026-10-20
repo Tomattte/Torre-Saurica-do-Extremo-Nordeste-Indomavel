@@ -104,6 +104,7 @@ export class Player
                 this.estaNoChao = false;
                 
             }
+            // <--- AJUSTE 2: APAGAR OU COMENTAR ESTE BLOCO ABAIXO (deixar de usar o limite fixo do canvas.height)
             /*
             if (this.posicaoY + this.height >= canvas.height)
                 {
@@ -113,7 +114,7 @@ export class Player
                 }
             */
 
-                //deixei apenas os limmites laterais ( mateus ) pra nao sair da tela 
+                // Manter apenas os limites laterais da tela para não sair dos lados
                 if (this.posicaoX + this.width >= canvas.width) this.posicaoX = canvas.width - this.width;
                 if (this.posicaoX <= 0) this.posicaoX = 0;
         }
