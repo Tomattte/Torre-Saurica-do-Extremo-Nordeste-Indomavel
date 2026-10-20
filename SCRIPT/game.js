@@ -1,22 +1,18 @@
 // IMPORTS
 
 // assetloader.js
-
 import { carregarImagens, IMGS } from './assetloader.js';
 
 // mapas
-
 import { MAPA1 } from '../MAPAS/MAPA1.js';
 import { MAPA2 } from '../MAPAS/MAPA2.js';
 import { MAPA3 } from '../MAPAS/MAPA3.js';
 
 // background.js
-
 import { backgrounds } from './backgrounds.js';
 import { desenharMapa } from './backgrounds.js';
 
 // players.js
-
 import { Player } from './player.js';
 
 let p2 = false;
@@ -25,10 +21,41 @@ let jogador2;
 let gameState = "Menu";
 let backgroundAtual;
 
+// Variáveis de Vidas e HUD (Reta Final)
+let vidas = 3;
+let invencibilidadeFrames = 0;
+
 // inimigos.js
+import { Inimigo } from './enemy.js';
+
+// Lista para guardar todos os tiros ativos na tela
+const projecteis = [];
+
+// Lista de inimigos
+let inimigos = [];
+
+// Função para criar os inimigos nas plataformas do mapa
+function criarInimigos() {
+    inimigos = [
+        new Inimigo(200, 288, 1, 150, 350), // Tipo 1: Patrulha no chão
+        new Inimigo(400, 160, 2, 350, 550), // Tipo 2: Direção aleatória na plataforma
+        new Inimigo(150, 96, 3, 100, 300)   // Tipo 3: Pula e dá mais dano
+    ];
+}
+
+// Função para reiniciar o jogo
+function reiniciarJogo() {
+    vidas = 3;
+    invencibilidadeFrames = 0;
+    projecteis.length = 0;
+    jogador.posicaoX = 100;
+    jogador.posicaoY = 250;
+    jogador.velocidadeY = 0;
+    criarInimigos();
+    gameState = "Jogo";
+}
 
 // colisoes.js
-
 import { 
     criarProjectil, 
     atualizarProjecteis, 
@@ -37,15 +64,6 @@ import {
     processarColisoesJogadorInimigos, 
     resolverColisaoMapa
 } from './colisoes.js';
-
-// Lista para guardar todos os tiros ativos na tela
-const projecteis = [];
-
-
-// inimigos temporarios dia4
-let inimigos = [
-    { x: 300, y: 100, largura: 30, altura: 30, derrotado: false }
-];
 
 /*--------------------------------------------------------------------*/
 
@@ -96,16 +114,18 @@ window.addEventListener('resize', resizeGame);
 
 // CONTROLES DO PLAYER
 
+// CONTROLES DO PLAYER
+
 window.addEventListener("keydown", (event) =>
 {
-    if (event.key === "Enter" && gameState === "Menu") {
-        gameState = "Jogo";
-        
-        //backgroundAtual.image = IMGS.plataforma;
-        jogador.posicaoX = 100;
-        jogador.posicaoY = 250;
-        jogador.velocidadeY = 0;
+    if (event.key === "Enter") {
+        if (gameState === "Menu" || gameState === "GameOver" || gameState === "Vitoria") {
+            reiniciarJogo();
+        }
     }
+
+    if (gameState !== "Jogo") return;
+
     //Player 1
     if (event.key === "w") jogador.pular();
     if (event.key === "d") 
@@ -129,13 +149,10 @@ window.addEventListener("keydown", (event) =>
             jogador.colldowndash = 120;
         }
     }
-    // Disparo com a Barra de Espaço , pessoa 4 eu mateus
+    // Disparo com a Barra de Espaço
     if (event.code === "Space") {
-        if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
-        // demorei umas 3 horas pra isso ficar redondo
-        // Cria o projétil na posição atual do jogador, ajustando a direção
+        if (event.repeat) return; 
         const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
-        // Ajusta a posição inicial para sair à frente do jogador
         const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
         
         criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
@@ -166,7 +183,7 @@ window.addEventListener("keydown", (event) =>
             jogador2.colldowndash = 120;
         }
     }
-    // Disparo para o jogador2 (exemplo com a tecla "M")
+    // Disparo para o jogador2
     if (event.code === "KeyM") {
         if (event.repeat) return;
         
@@ -175,7 +192,6 @@ window.addEventListener("keydown", (event) =>
         
         criarProjectil(projecteis, posX2, jogador2.posicaoY + 10, direcaoTiroP2);
     }
-
 })
 
 window.addEventListener("keyup", (event) =>
@@ -191,15 +207,11 @@ window.addEventListener("keyup", (event) =>
 /*--------------------------------------------------------------------*/
 
 function init() {
-
-    // Chama a função que carrega os assets
-
     carregarImagens(() => {
-        // Assim que o navegador baixar tudo, chama a função animate e inicia o loop
-
         jogador = new Player(10, 0, "blue");
         jogador2 = new Player(310, 0, "red");
         backgroundAtual = new backgrounds({image: IMGS.menu});
+        criarInimigos();
         
         console.log("Jogo pronto");
         requestAnimationFrame(animate);
@@ -210,11 +222,7 @@ function animate()
 {
     requestAnimationFrame(animate);
 
-    // Limpa o canvas
-
     ctx.clearRect (0, 0, canvas.width, canvas.height);
-
-    // Desenha um fundo branco
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
@@ -223,32 +231,20 @@ function animate()
         
         backgroundAtual.update(ctx); 
 
-    } else {
+    } else if (gameState === "Jogo") {
 
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
-
-        // Desenha o background atual
-
-        console.log("Camadas:", MAPA1.layers.map(layer => ({
-            nome: layer.name,
-            tipo: layer.type,
-            quantidadeTiles: layer.data?.length,
-            tilesPreenchidos: layer.data?.filter(tile => tile !== 0).length
-        })));
-
-        console.log("Imagem:", IMGS.MAPA1);
-
-        // Desenha o background atual (a imagem inteira do mapa estático)
+        // Desenha o background atual (mapa estático) sem os console.log lentos
         if (IMGS.MAPA1 && IMGS.MAPA1.complete) {
             ctx.drawImage(IMGS.MAPA1, 0, 0, canvas.width, canvas.height);
         }
 
-        //Desenha o player se o jogo tiver começado
-
+        // Desenha o player 1
         jogador.update();
         resolverColisaoMapa(jogador, MAPA1);
-        jogador.draw(ctx);
+        
+        if (invencibilidadeFrames <= 0 || Math.floor(invencibilidadeFrames / 5) % 2 === 0) {
+            jogador.draw(ctx);
+        }
 
         if (p2 === true) 
         {
@@ -256,28 +252,68 @@ function animate()
             resolverColisaoMapa(jogador2, MAPA1);
             jogador2.draw(ctx);
         }
-
-        //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
-        
-        atualizarProjecteis(projecteis, C_WIDTH);
+    
+        // Atualiza projéteis
+        atualizarProjecteis(projecteis, C_WIDTH, MAPA1);
 
         processarColisoesProjeteisInimigos(projecteis, inimigos);
 
         processarColisoesJogadorInimigos(jogador, inimigos, () => {
-            console.log("O jogador foi atingido pelo inimigo!");
-            // Aqui podes chamar a função de perder vida da Pessoa 5 futuramente
+            if (invencibilidadeFrames <= 0) {
+                vidas--;
+                invencibilidadeFrames = 90; // ~1.5 segundos de invencibilidade
+                console.log("O jogador foi atingido! Vidas restantes:", vidas);
+                
+                if (vidas <= 0) {
+                    gameState = "GameOver";
+                }
+            }
         });
+
+        if (invencibilidadeFrames > 0) {
+            invencibilidadeFrames--;
+        }
 
         inimigos = inimigos.filter(i => !i.derrotado);
 
-        desenharProjecteis(projecteis, ctx);
+        desenharProjecteis(projecteis, ctx);      
 
-        console.log("Quantidade de tiros ativos:", projecteis.length);      
-
+        // Atualiza e desenha os inimigos
         inimigos.forEach(inimigo => {
-            ctx.fillStyle = "purple";
-            ctx.fillRect(inimigo.x, inimigo.y, inimigo.largura, inimigo.altura);
+            inimigo.update(MAPA1);
+            inimigo.draw(ctx);
         });
+
+        // Verifica condição de vitória
+        const inimigosRestantes = inimigos.length;
+        if (inimigosRestantes === 0 && gameState === "Jogo") {
+            gameState = "Vitoria";
+        }
+
+        // Desenha o HUD (Vidas e Inimigos Restantes)
+        ctx.fillStyle = "black";
+        ctx.font = "16px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText(`Vidas: ${vidas}`, 20, 30);
+        ctx.fillText(`Inimigos Restantes: ${inimigosRestantes}`, 20, 55);
+
+    } else if (gameState === "GameOver" || gameState === "Vitoria") {
+        // Telas de Fim de Jogo
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
+
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        
+        if (gameState === "GameOver") {
+            ctx.fillText("GAME OVER", C_WIDTH / 2, C_HEIGHT / 2 - 20);
+        } else {
+            ctx.fillText("VOCÊ VENCEU!", C_WIDTH / 2, C_HEIGHT / 2 - 20);
+        }
+
+        ctx.font = "16px Arial";
+        ctx.fillText("Pressione [ ENTER ] para reiniciar", C_WIDTH / 2, C_HEIGHT / 2 + 20);
     }
 }
 
