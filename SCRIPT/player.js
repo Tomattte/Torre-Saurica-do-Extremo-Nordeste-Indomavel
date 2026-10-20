@@ -22,12 +22,53 @@ export class Player
             this.posicaoX = posicaoX;
             this.posicaoY = posicaoY - this.height;
             this.color = color;
+            this.lifePool = [];
+            this.imortal = false;
+            this.vivo = true;
+        }
+
+        ficaImortal() {
+            this.imortal = true;
+            setTimeout(() => {
+                this.imortal = false
+            }, 1500)
+        }
+
+        checaVida() {
+            let lifeAtual = 0;
+            for (let i = (this.lifePool.length - 1); i >= 0; i--) {
+                if (this.lifePool[i].broken === false) lifeAtual++;
+            }
+            return lifeAtual;
+        }
+
+        levaDano() {
+            const lifeAtual = this.checaVida();
+
+            if (lifeAtual > 0 && this.imortal === false) {
+                this.ficaImortal();
+                this.lifePool[lifeAtual-1].broken = true;
+            }
         }
 
         draw(ctx) 
         {
+
+            // Desenha a vida do player
+
+            for (let i = this.lifePool.length - 1; i >= 0; i--) {
+                this.lifePool[i].draw(ctx);
+            }
+
+            ctx.save();
+            if (this.imortal === true) {
+                ctx.globalAlpha = 0.5;
+            } else {
+                ctx.globalAlpha = 1;
+            }
             ctx.fillStyle = this.color;
             ctx.fillRect(this.posicaoX, this.posicaoY, this.width, this.height);
+            ctx.restore();
         }
 
         update()
