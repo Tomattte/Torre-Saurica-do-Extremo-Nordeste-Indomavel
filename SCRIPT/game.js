@@ -34,7 +34,8 @@ import {
     atualizarProjecteis, 
     desenharProjecteis, 
     processarColisoesProjeteisInimigos,
-    processarColisoesJogadorInimigos 
+    processarColisoesJogadorInimigos, 
+    resolverColisaoMapa
 } from './colisoes.js';
 
 // Lista para guardar todos os tiros ativos na tela
@@ -101,6 +102,9 @@ window.addEventListener("keydown", (event) =>
         gameState = "Jogo";
         
         //backgroundAtual.image = IMGS.plataforma;
+        jogador.posicaoX = 100;
+        jogador.posicaoY = 250;
+        jogador.velocidadeY = 0;
     }
     //Player 1
     if (event.key === "w") jogador.pular();
@@ -221,18 +225,35 @@ function animate()
 
     } else {
 
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
+
         // Desenha o background atual
 
-        desenharMapa(ctx, MAPA1, IMGS.MAPA1);
+        console.log("Camadas:", MAPA1.layers.map(layer => ({
+            nome: layer.name,
+            tipo: layer.type,
+            quantidadeTiles: layer.data?.length,
+            tilesPreenchidos: layer.data?.filter(tile => tile !== 0).length
+        })));
+
+        console.log("Imagem:", IMGS.MAPA1);
+
+        // Desenha o background atual (a imagem inteira do mapa estático)
+        if (IMGS.MAPA1 && IMGS.MAPA1.complete) {
+            ctx.drawImage(IMGS.MAPA1, 0, 0, canvas.width, canvas.height);
+        }
 
         //Desenha o player se o jogo tiver começado
 
         jogador.update();
+        resolverColisaoMapa(jogador, MAPA1);
         jogador.draw(ctx);
 
         if (p2 === true) 
         {
             jogador2.update();
+            resolverColisaoMapa(jogador2, MAPA1);
             jogador2.draw(ctx);
         }
 

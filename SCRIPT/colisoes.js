@@ -2,34 +2,30 @@
  * Módulo de Colisões - Mateus (Dia 1 ao Dia 4)
  * Funções de tiro, limpeza da tela e toque com inimigos.
  */
-//organizei os contarios porque de algujma forma os tiros nao funcionava 
-//mateus 17/10/2026 19:42 passei 3 horas pra funcionar e terminar  a tesk do dia 4
+
 // Cria o tiro na posição certa e bota na lista de projéteis ativos
 export function criarProjectil(projecteis, x, y, direcao) {
     projecteis.push({
-        x: x,                         // Posição horizontal inicial
-        y: y,                         // Posição vertical inicial
-        direcao: direcao,             // 'direita' ou 'esquerda'
-        velocidade: 7,                // Velocidade do tiro por frame
-        largura: 10,                  // Largura do bloco do tiro
-        altura: 4                     // Altura do bloco do tiro
+        x: x,                         
+        y: y,                         
+        direcao: direcao,             
+        velocidade: 7,                
+        largura: 10,                  
+        altura: 4                     
     });
 }
 
 // Atualiza a posição de cada tiro e limpa os que saem da tela
 export function atualizarProjecteis(projecteis, larguraCanvas) {
-    // A gente percorre de trás pra frente pra o array não bugar ao remover itens
     for (let i = projecteis.length - 1; i >= 0; i--) {
         const p = projecteis[i];
 
-        // Move o tiro pro lado que o boneco tava virado
         if (p.direcao === 'direita') {
             p.x += p.velocidade;
         } else if (p.direcao === 'esquerda') {
             p.x -= p.velocidade;
         }
 
-        // Se o tiro passar da tela, vapo (some da memória)
         if (p.x > larguraCanvas || p.x + p.largura < 0) {
             projecteis.splice(i, 1);
         }
@@ -38,15 +34,14 @@ export function atualizarProjecteis(projecteis, larguraCanvas) {
 
 // Desenha todos os tiros na tela em formato de retângulo vermelho
 export function desenharProjecteis(projecteis, ctx) {
-    ctx.fillStyle = 'red'; // Cor vermelha pros tiros
+    ctx.fillStyle = 'red'; 
 
     projecteis.forEach(p => {
         ctx.fillRect(p.x, p.y, p.largura, p.altura);
     });
 }
 
-// Tarefa do dia 3: lógica de colisão AABB em JS puro
-// Básicamente confere se dois retângulos tão se sobrepondo (batendo um no outro)
+// Lógica de colisão AABB em JS puro
 export function verificarColisao(ret1, ret2) {
     return (
         ret1.x < ret2.x + ret2.largura && 
@@ -55,7 +50,7 @@ export function verificarColisao(ret1, ret2) {
         ret1.y + ret1.altura > ret2.y  
     );
 }
-// tarefas do dia 4 
+
 // Checa se o tiro acertou algum inimigo
 export function processarColisoesProjeteisInimigos(projecteis, inimigos) {
     for (let i = projecteis.length - 1; i >= 0; i--) {
@@ -66,10 +61,9 @@ export function processarColisoesProjeteisInimigos(projecteis, inimigos) {
 
             if (inimigo.derrotado) continue;
 
-            // Se o tiro encostou no inimigo, marca ele como derrotado e apaga o tiro
             if (verificarColisao(p, inimigo)) {
                 inimigo.derrotado = true;
-                projecteis.splice(i, 1);// splice é bom de mais
+                projecteis.splice(i, 1);
                 break;
             }
         }
@@ -83,12 +77,57 @@ export function processarColisoesJogadorInimigos(jogador, inimigos, funcaoPerder
 
         if (inimigo.derrotado) continue;
 
-        // Se o player bateu no monstro, chama a função de perder vida
         if (verificarColisao(jogador, inimigo)) {
             if (typeof funcaoPerderVida === 'function') {
                 funcaoPerderVida();
             }
-            break; // Pra não tirar 300 vidas no mesmo frame por bug
-        }            // seria muito ruim eu acho kkkkkkkkkkk
+            break; 
+        }            
+    }
+}
+
+//versao 999 tem que funcionar
+
+export function resolverColisaoMapa(jogador, mapa) {
+    if (!mapa || !mapa.layers) return;
+
+    const tileSize = mapa.tileheight || 32;
+    const colunas = mapa.width;
+
+    // No MAPA1, a segunda camada contém as plataformas e o chão.
+    const camadaColisao = mapa.layers[1];
+
+    if (!camadaColisao || !camadaColisao.data) return;
+
+    const data = camadaColisao.data;
+
+    jogador.estaNoChao = false;
+
+    for (let i = 0; i < data.length; i++) {
+        if (data[i] === 0) continue;
+
+        const blocoX = (i % colunas) * tileSize;
+        const blocoY = Math.floor(i / colunas) * tileSize;
+
+        const sobrepoeX =
+            jogador.posicaoX < blocoX + tileSize &&
+            jogador.posicaoX + jogador.width > blocoX;
+
+        const sobrepoeY =
+            jogador.posicaoY < blocoY + tileSize &&
+            jogador.posicaoY + jogador.height > blocoY;
+
+        if (!sobrepoeX || !sobrepoeY) continue;
+
+        if (jogador.velocidadeY > 0) {
+            // Caiu sobre o topo de uma plataforma ou do chão.
+            jogador.posicaoY = blocoY - jogador.height;
+            jogador.velocidadeY = 0;
+            jogador.estaNoChao = true;
+        } else if (jogador.velocidadeY < 0) {
+            // Bateu a cabeça na parte inferior de um bloco.
+            jogador.posicaoY = blocoY + tileSize;
+            jogador.velocidadeY = 0;
+        }
     }
 }
