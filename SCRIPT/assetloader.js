@@ -6,6 +6,9 @@ export const IMGS = {};
 
 const loadList = [
     { nome: 'menu', src: 'ASSETS/Menu_prototipo.png' },
+    { nome: 'gameover', src: 'ASSETS/GameOver_prototipo.png' },
+    { nome: 'vidaP1', src: 'ASSETS/HEARTP1.png'},
+    { nome: 'vidaP2', src: 'ASSETS/HEARTP2.png'},
     //{ nome: 'player', src: 'ASSETS/player_sprite.png' },
     { nome: 'MAPA1', src: 'ASSETS/MAPA1.png'},
     { nome: 'MAPA2', src: 'ASSETS/MAPA2.png'},
