@@ -19,11 +19,9 @@ import { desenharMapa } from './backgrounds.js';
 
 import { Player } from './player.js';
 
-let p2 = false;
-let jogador;
-let jogador2;
-let gameState = "Menu";
-let backgroundAtual;
+// hearts.js
+
+import { Heart } from './hearts.js';
 
 // inimigos.js
 
@@ -34,20 +32,39 @@ import {
     atualizarProjecteis, 
     desenharProjecteis, 
     processarColisoesProjeteisInimigos,
-    processarColisoesJogadorInimigos 
+    processarColisoesJogadorInimigos,
+    projecteis
 } from './colisoes.js';
-
-// Lista para guardar todos os tiros ativos na tela
-const projecteis = [];
-
 
 // inimigos temporarios dia4
 let inimigos = [
-    { x: 300, y: 100, largura: 30, altura: 30, derrotado: false }
+    { x: 300, y: 328, largura: 32, altura: 32, derrotado: false }
 ];
+
+// gameover.js
+
+export function GameOver() {
+    gameState = "Game Over";
+    backgroundAtual = new backgrounds({ image: IMGS.gameover });
+}
+
+import { seraGameOver } from './gameover.js';
 
 /*--------------------------------------------------------------------*/
 
+//Variáveis Instanciadas
+
+let jogador;
+let jogador2;
+
+let p2;
+
+let gameState;
+let backgroundAtual;
+
+let animacaoId;
+
+/*--------------------------------------------------------------------*/
 // CANVAS CONFIGURATION 
 
 const canvas = document.getElementById("canvas");
@@ -99,79 +116,89 @@ window.addEventListener("keydown", (event) =>
 {
     if (event.key === "Enter" && gameState === "Menu") {
         gameState = "Jogo";
-        
-        //backgroundAtual.image = IMGS.plataforma;
-    }
-    //Player 1
-    if (event.key === "w") jogador.pular();
-    if (event.key === "d") 
-    {
-        jogador.andandoDireita = true;
-        jogador.viradoPra = 1;
-    }
-    if (event.key === "a") 
-    {
-        jogador.andandoEsquerda = true;
-        jogador.viradoPra = -1;
-    }
-    if (event.code === "ShiftLeft") 
-    {
-        if (jogador.podedash === true)
-        {
-            jogador.dandoDash = true;
-            jogador.framesDash = 3;
-            jogador.andandoEsquerda = false;
-            jogador.andandoDireita = false;
-            jogador.colldowndash = 120;
-        }
-    }
-    // Disparo com a Barra de Espaço , pessoa 4 eu mateus
-    if (event.code === "Space") {
-        if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
-        // demorei umas 3 horas pra isso ficar redondo
-        // Cria o projétil na posição atual do jogador, ajustando a direção
-        const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
-        // Ajusta a posição inicial para sair à frente do jogador
-        const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
-        
-        criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
     }
 
-    //Player 2
-    if (event.key === "o") jogador2.pular();
-    if (event.key === "ç")
-    {
-        jogador2.andandoDireita = true;
-        jogador2.viradoPra = 1;
+    if (event.key === "Enter" && gameState === "Game Over") {
+        init();
     }
-    if (event.key === "k")
-    {
-        jogador2.andandoEsquerda = true;
-        jogador2.viradoPra = -1;
+
+    // Player 1
+    if (jogador && jogador.vivo) {
+        if (event.key === "w") jogador.pular();
+        if (event.key === "d") 
+        {
+            jogador.andandoDireita = true;
+            jogador.viradoPra = 1;
+        }
+        if (event.key === "a") 
+        {
+            jogador.andandoEsquerda = true;
+            jogador.viradoPra = -1;
+        }
+        if (event.code === "ShiftLeft") 
+        {
+            if (jogador.podedash === true)
+            {
+                jogador.dandoDash = true;
+                jogador.framesDash = 3;
+                jogador.andandoEsquerda = false;
+                jogador.andandoDireita = false;
+                jogador.colldowndash = 120;
+            }
+        }
+        // Disparo com a Barra de Espaço , pessoa 4 eu mateus
+        if (event.code === "Space") {
+            if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
+            // demorei umas 3 horas pra isso ficar redondo
+            // Cria o projétil na posição atual do jogador, ajustando a direção
+            const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
+            // Ajusta a posição inicial para sair à frente do jogador
+            const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
+        
+            criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
+        }
     }
+    
+    // Ativa o Player 2
+
     if (event.key === "y") p2 = true;
 
-    if (event.key === "1") 
-    {
-        if (jogador2.podedash === true)
+    // Player 2
+
+    if (p2 === true && jogador2 && jogador2.vivo) {
+        if (event.key === "o") jogador2.pular();
+        if (event.key === "ç")
         {
-            jogador2.dandoDash = true;
-            jogador2.framesDash = 3;
-            jogador2.andandoEsquerda = false;
-            jogador2.andandoDireita = false;
-            jogador2.colldowndash = 120;
+            jogador2.andandoDireita = true;
+            jogador2.viradoPra = 1;
+        }
+        if (event.key === "k")
+        {
+            jogador2.andandoEsquerda = true;
+            jogador2.viradoPra = -1;
+        }
+
+        if (event.key === "1") 
+        {
+            if (jogador2.podedash === true)
+            {
+                jogador2.dandoDash = true;
+                jogador2.framesDash = 3;
+                jogador2.andandoEsquerda = false;
+                jogador2.andandoDireita = false;
+                jogador2.colldowndash = 120;
+            }
+        }
+        // Disparo para o jogador2 (exemplo com a tecla "M")
+        if (event.code === "KeyM") {
+            if (event.repeat) return;
+        
+            const direcaoTiroP2 = jogador2.viradoPra === -1 ? 'esquerda' : 'direita';
+            const posX2 = jogador2.viradoPra === -1 ? jogador2.posicaoX - 10 : jogador2.posicaoX + jogador2.width;
+        
+            criarProjectil(projecteis, posX2, jogador2.posicaoY + 10, direcaoTiroP2);
         }
     }
-    // Disparo para o jogador2 (exemplo com a tecla "M")
-    if (event.code === "KeyM") {
-        if (event.repeat) return;
-        
-        const direcaoTiroP2 = jogador2.viradoPra === -1 ? 'esquerda' : 'direita';
-        const posX2 = jogador2.viradoPra === -1 ? jogador2.posicaoX - 10 : jogador2.posicaoX + jogador2.width;
-        
-        criarProjectil(projecteis, posX2, jogador2.posicaoY + 10, direcaoTiroP2);
-    }
-
 })
 
 window.addEventListener("keyup", (event) =>
@@ -193,18 +220,64 @@ function init() {
     carregarImagens(() => {
         // Assim que o navegador baixar tudo, chama a função animate e inicia o loop
 
+        if (animacaoId) {
+            cancelAnimationFrame(animacaoId);
+        }
+
+        p2 = false;
         jogador = new Player(10, 0, "blue");
         jogador2 = new Player(310, 0, "red");
+        gameState = "Menu";
         backgroundAtual = new backgrounds({image: IMGS.menu});
         
+        // Inicializando vida do Player 1
+        jogador.lifePool[0] =
+        new Heart ({
+            x: 0,
+            y: 0,
+            image: IMGS.vidaP1
+        })
+        jogador.lifePool[1] =
+        new Heart ({
+            x: 32,
+            y: 0,
+            image: IMGS.vidaP1
+        })
+        jogador.lifePool[2] =
+        new Heart ({
+            x: 64,
+            y: 0,
+            image: IMGS.vidaP1
+        })
+
+        // Inicializando vida do Player 2
+        jogador2.lifePool[0] =
+        new Heart ({
+            x: (C_WIDTH - 32),
+            y: 0,
+            image: IMGS.vidaP2
+        })
+        jogador2.lifePool[1] =
+        new Heart ({
+            x: (C_WIDTH - 64),
+            y: 0,
+            image: IMGS.vidaP2
+        })
+        jogador2.lifePool[2] =
+        new Heart ({
+            x: (C_WIDTH - 96),
+            y: 0,
+            image: IMGS.vidaP2
+        })
+        
         console.log("Jogo pronto");
-        requestAnimationFrame(animate);
+        animacaoId = requestAnimationFrame(animate);
     });
 }
 
 function animate()
 {
-    requestAnimationFrame(animate);
+    animacaoId = requestAnimationFrame(animate);
 
     // Limpa o canvas
 
@@ -215,7 +288,7 @@ function animate()
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
 
-    if (gameState === "Menu") {
+    if (gameState !== "Jogo") {
         
         backgroundAtual.update(ctx); 
 
@@ -225,15 +298,25 @@ function animate()
 
         desenharMapa(ctx, MAPA1, IMGS.MAPA1);
 
-        //Desenha o player se o jogo tiver começado
+        // Desenha o player se o jogo tiver começado
 
         jogador.update();
         jogador.draw(ctx);
+
+        processarColisoesJogadorInimigos(jogador, inimigos, () => {
+            jogador.levaDano();
+            seraGameOver(jogador, jogador2, p2);
+        });
 
         if (p2 === true) 
         {
             jogador2.update();
             jogador2.draw(ctx);
+
+            processarColisoesJogadorInimigos(jogador2, inimigos, () => {
+                jogador2.levaDano();
+                seraGameOver(jogador2, jogador, p2);
+            });
         }
 
         //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
@@ -241,11 +324,6 @@ function animate()
         atualizarProjecteis(projecteis, C_WIDTH);
 
         processarColisoesProjeteisInimigos(projecteis, inimigos);
-
-        processarColisoesJogadorInimigos(jogador, inimigos, () => {
-            console.log("O jogador foi atingido pelo inimigo!");
-            // Aqui podes chamar a função de perder vida da Pessoa 5 futuramente
-        });
 
         inimigos = inimigos.filter(i => !i.derrotado);
 
