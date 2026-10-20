@@ -11,29 +11,26 @@ export const projecteis = [];
 // Cria o tiro na posição certa e bota na lista de projéteis ativos
 export function criarProjectil(projecteis, x, y, direcao) {
     projecteis.push({
-        x: x,                         // Posição horizontal inicial
-        y: y,                         // Posição vertical inicial
-        direcao: direcao,             // 'direita' ou 'esquerda'
-        velocidade: 7,                // Velocidade do tiro por frame
-        largura: 10,                  // Largura do bloco do tiro
-        altura: 4                     // Altura do bloco do tiro
+        x: x,                         
+        y: y,                         
+        direcao: direcao,             
+        velocidade: 7,                
+        largura: 10,                  
+        altura: 4                     
     });
 }
 
 // Atualiza a posição de cada tiro e limpa os que saem da tela
 export function atualizarProjecteis(projecteis, larguraCanvas) {
-    // A gente percorre de trás pra frente pra o array não bugar ao remover itens
     for (let i = projecteis.length - 1; i >= 0; i--) {
         const p = projecteis[i];
 
-        // Move o tiro pro lado que o boneco tava virado
         if (p.direcao === 'direita') {
             p.x += p.velocidade;
         } else if (p.direcao === 'esquerda') {
             p.x -= p.velocidade;
         }
 
-        // Se o tiro passar da tela, vapo (some da memória)
         if (p.x > larguraCanvas || p.x + p.largura < 0) {
             projecteis.splice(i, 1);
         }
@@ -42,15 +39,14 @@ export function atualizarProjecteis(projecteis, larguraCanvas) {
 
 // Desenha todos os tiros na tela em formato de retângulo vermelho
 export function desenharProjecteis(projecteis, ctx) {
-    ctx.fillStyle = 'red'; // Cor vermelha pros tiros
+    ctx.fillStyle = 'red'; 
 
     projecteis.forEach(p => {
         ctx.fillRect(p.x, p.y, p.largura, p.altura);
     });
 }
 
-// Tarefa do dia 3: lógica de colisão AABB em JS puro
-// Básicamente confere se dois retângulos tão se sobrepondo (batendo um no outro)
+// Lógica de colisão AABB em JS puro
 export function verificarColisao(ret1, ret2) {
     
     // Mapeia as propriedades do primeiro objeto (ret1), aceitando as variações
@@ -89,10 +85,9 @@ export function processarColisoesProjeteisInimigos(projecteis, inimigos) {
 
             if (inimigo.derrotado) continue;
 
-            // Se o tiro encostou no inimigo, marca ele como derrotado e apaga o tiro
             if (verificarColisao(p, inimigo)) {
                 inimigo.derrotado = true;
-                projecteis.splice(i, 1);// splice é bom de mais
+                projecteis.splice(i, 1);
                 break;
             }
         }
@@ -106,12 +101,11 @@ export function processarColisoesJogadorInimigos(jogador, inimigos, funcaoPerder
 
         if (inimigo.derrotado) continue;
 
-        // Se o player bateu no monstro, chama a função de perder vida
         if (verificarColisao(jogador, inimigo)) {
             if (typeof funcaoPerderVida === 'function') {
                 funcaoPerderVida();
             }
-            break; // Pra não tirar 300 vidas no mesmo frame por bug
-        }            // seria muito ruim eu acho kkkkkkkkkkk
+            break; 
+        }            
     }
 }

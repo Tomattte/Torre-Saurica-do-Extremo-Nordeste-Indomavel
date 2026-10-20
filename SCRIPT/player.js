@@ -7,7 +7,7 @@ export class Player
         velocidadeY = 0;
         velocidadeAndar = 4;
         forcaDoPulo = -9;
-        estaNoChao = true;
+        estaNoChao = false;
         andandoDireita = false;
         andandoEsquerda = false;
         viradoPra = 0;
@@ -97,20 +97,24 @@ export class Player
 
                 if(this.andandoEsquerda) this.velocidadeX = - this.velocidadeAndar;
 
-                this.posicaoX +=this.velocidadeX;
+                this.posicaoX += this.velocidadeX;
 
                 this.velocidadeY += this.gravidade;
                 this.posicaoY += this.velocidadeY;
                 this.estaNoChao = false;
                 
             }
-            
+            // <--- AJUSTE 2: APAGAR OU COMENTAR ESTE BLOCO ABAIXO (deixar de usar o limite fixo do canvas.height)
+            /*
             if (this.posicaoY + this.height >= canvas.height)
                 {
                     this.posicaoY = canvas.height - this.height;
                     this.velocidadeY = 0;
                     this.estaNoChao = true;
                 }
+            */
+
+                // Manter apenas os limites laterais da tela para não sair dos lados
                 if (this.posicaoX + this.width >= canvas.width) this.posicaoX = canvas.width - this.width;
                 if (this.posicaoX <= 0) this.posicaoX = 0;
         }
