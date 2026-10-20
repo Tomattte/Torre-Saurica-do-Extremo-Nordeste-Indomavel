@@ -42,46 +42,38 @@ export class backgrounds {
     }
 }
 
-
 export function desenharMapa(ctx, ObjMapa, ImgMapa) {
     if (!ObjMapa || !ObjMapa.layers) return;
 
     const tileSize = 32;
     const colunasMapa = ObjMapa.width || Math.floor(C_WIDTH / tileSize);
 
-    // Desenha todas as camadas visuais do mapa
     ObjMapa.layers.forEach((layer) => {
-        if (layer.type !== "tilelayer" && !layer.data) return;
+        if (layer.type === 'tilelayer' || layer.data) {
+            const data = layer.data;
 
-        const data = layer.data;
-        if (!data) return;
+            for (let i = 0; i < data.length; i++) {
+                const tileId = data[i];
+                if (tileId === 0) continue; // PULA OS BLOCO
 
-        for (let i = 0; i < data.length; i++) {
-            const tileId = data[i];
+                const x = (i % colunasMapa) * tileSize;
+                const y = Math.floor(i / colunasMapa) * tileSize;
 
-            // Tile vazio: não desenha nada
-            if (tileId === 0) continue;
+                // Verifica se a imagem do tileset já terminou de carregar
+                if (ImgMapa && ImgMapa.complete && ImgMapa.naturalWidth !== 0) {
+                    const colunasTileset = Math.floor(ImgMapa.width / tileSize);
+                    const srcX = ((tileId - 1) % colunasTileset) * tileSize;
+                    const srcY = Math.floor((tileId - 1) / colunasTileset) * tileSize;
 
-            const x = (i % colunasMapa) * tileSize;
-            const y = Math.floor(i / colunasMapa) * tileSize;
-
-            if (ImgMapa && ImgMapa.complete && ImgMapa.naturalWidth > 0) {
-                const colunasTileset = Math.floor(ImgMapa.naturalWidth / tileSize);
-
-                if (colunasTileset <= 0) continue;
-
-                const srcX = ((tileId - 1) % colunasTileset) * tileSize;
-                const srcY = Math.floor((tileId - 1) / colunasTileset) * tileSize;
-
-                ctx.drawImage(
-                    ImgMapa,
-                    srcX, srcY, tileSize, tileSize,
-                    x, y, tileSize, tileSize
-                );
-            } else {
-                // Fundo provisório enquanto a imagem carrega
-                ctx.fillStyle = "#555555";
-                ctx.fillRect(x, y, tileSize, tileSize);
+                    ctx.drawImage(
+                        ImgMapa,
+                        srcX, srcY, tileSize, tileSize,
+                        x, y, tileSize, tileSize
+                    );
+                } else {
+                    ctx.fillStyle = "#555555";
+                    ctx.fillRect(x, y, tileSize, tileSize);
+                }
             }
         }
     });
