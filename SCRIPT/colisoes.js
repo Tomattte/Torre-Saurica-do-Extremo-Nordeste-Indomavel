@@ -3,6 +3,10 @@
  * Funções de tiro, limpeza da tela e toque com inimigos.
  */
 //organizei os contarios porque de algujma forma os tiros nao funcionava 
+
+// Lista para guardar todos os tiros ativos na tela
+export const projecteis = [];
+
 //mateus 17/10/2026 19:42 passei 3 horas pra funcionar e terminar  a tesk do dia 4
 // Cria o tiro na posição certa e bota na lista de projéteis ativos
 export function criarProjectil(projecteis, x, y, direcao) {
@@ -48,13 +52,32 @@ export function desenharProjecteis(projecteis, ctx) {
 // Tarefa do dia 3: lógica de colisão AABB em JS puro
 // Básicamente confere se dois retângulos tão se sobrepondo (batendo um no outro)
 export function verificarColisao(ret1, ret2) {
+    
+    // Mapeia as propriedades do primeiro objeto (ret1), aceitando as variações
+    // de nome usados para a posição e tamanho encontradas no código
+
+    const x1 = ret1.x !== undefined ? ret1.x : ret1.posicaoX;
+    const y1 = ret1.y !== undefined ? ret1.y : ret1.posicaoY;
+    const w1 = ret1.width !== undefined ? ret1.width : ret1.largura;
+    const h1 = ret1.height !== undefined ? ret1.height : ret1.altura;
+
+    // Mapeia as propriedades do segundo objeto (ret2), na mesma lógica
+
+    const x2 = ret2.x !== undefined ? ret2.x : ret2.posicaoX;
+    const y2 = ret2.y !== undefined ? ret2.y : ret2.posicaoY;
+    const w2 = ret2.width !== undefined ? ret2.width : ret2.largura;
+    const h2 = ret2.height !== undefined ? ret2.height : ret2.altura;
+
+    // Faz a checagem AABB
+    
     return (
-        ret1.x < ret2.x + ret2.largura && 
-        ret1.x + ret1.largura > ret2.x &&  
-        ret1.y < ret2.y + ret2.altura && 
-        ret1.y + ret1.altura > ret2.y  
+        x1 < x2 + w2 && 
+        x1 + w1 > x2 &&  
+        y1 < y2 + h2 && 
+        y1 + h1 > y2  
     );
 }
+
 // tarefas do dia 4 
 // Checa se o tiro acertou algum inimigo
 export function processarColisoesProjeteisInimigos(projecteis, inimigos) {
