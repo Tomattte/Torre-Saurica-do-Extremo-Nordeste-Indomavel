@@ -134,15 +134,22 @@ export class Player
                 
                 // Reseta enquanto usa frame estático
             } 
-            else if (!this.estaNoChao) // PULAR (Agora por tempo contínuo)
+            else if (!this.estaNoChao) // PULAR (Agora baseado na velocidadeY)
             {
                 this.frameY = this.viradoPra === 1 ? 7 : 6;
-                if (this.frameY !== 7 && this.frameY !== 6) this.contadorFrames = 0; // Se Acabou de Sair do Chão, Resete animação.
-                this.velocidadeAnimacao = 12;
-                this.contadorFrames++;
-                let frameCalculado = Math.floor(this.contadorFrames / this.velocidadeAnimacao);
-                this.frameX = frameCalculado % this.framesAndar; 
-            } 
+
+                // DEFINE SE O JOGADOR ESTÁ CAINDO OU SUBINDO BASEADO NO SINAL DE VELOCIDADEY (POSITIVO OU NEGATIVO)
+                const estaSubindo = this.velocidadeY < 0;
+
+                // USA O SPRITE CERTO BASEADO NA DIREÇÃO DO PERSONAGEM
+                if (this.viradoPra === 1) {
+                    // USA O FRAME 3 SE TIVER SUBINDO E O 4 SE TIVER CAINDO
+                    this.frameX = estaSubindo ? 2 : 3;
+                } else {
+                    // USA O FRAME 2 SE TIVER SUBINDO E O 4 SE TIVER CAINDO
+                    this.frameX = estaSubindo ? 1 : 3;
+                }
+            }
             else if (this.andandoDireita || this.andandoEsquerda) // ANDAR
             {
                 this.frameY = this.viradoPra === 1 ? 3 : 2;
