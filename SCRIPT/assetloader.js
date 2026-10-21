@@ -5,7 +5,7 @@ export const IMGS = {};
 // Array de objetos com o nome e a src dos assets que precisam ser carregados
 
 const loadList = [
-    { nome: 'menu', src: 'ASSETS/Menu_prototipo.png' },
+    { nome: 'menu', src: 'ASSETS/MenuImagem.png' },
     { nome: 'gameover', src: 'ASSETS/GameOver_prototipo.png' },
     { nome: 'vidaP1', src: 'ASSETS/HEARTP1.png'},
     { nome: 'vidaP2', src: 'ASSETS/HEARTP2.png'},

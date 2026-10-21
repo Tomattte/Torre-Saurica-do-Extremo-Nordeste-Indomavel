@@ -1,43 +1,54 @@
-// CRIADA POR JOAO SEGUINDO OS ENSINAMENTOS DO VIDEO
-/*
-export class Sprite {
-    constructor({ position, imageSrc }) {
-        this.position = position;
-        this.image = new Image();
-        this.image.src = imageSrc;
-        this.loaded = false;
-
-        // SE TIVER PRONTA ELA APARECE
-        this.image.onload = () => {
-            this.loaded = true;
-        };
-    }
-
-    draw(ctx) {
-    if (!this.loaded) return;
-    // TENTA OCUPAR GERAL
-    ctx.drawImage(this.image, this.position.x, this.position.y, ctx.canvas.width, ctx.canvas.height);
-}
-
-    update(ctx) {
-        this.draw(ctx);
-    }
-}
-*/
 export class backgrounds {
-    constructor({image}) {
+    constructor({ image, FramesT = 1, VFrames = 10 }) {
         this.position = {
             x: 0,
             y: 0
-        }
+        };
         this.image = image;
+        
+        // Propriedades necessárias para a animação do background
+
+        this.FrameW = 640;          // Width
+        this.FrameH = 360;          // Height
+        this.FramesT = FramesT;     // Quantidade de frames (por padrão é 1)
+        this.FrameAtual = 0;        // Define o 0 como frame inicial
+        this.contadorFrames = 0;    // Controla a velocidade de troca
+        this.VFrames = VFrames;     // Define quantos frames são necessárias para trocar para a próxima imagem
     }
 
     draw(ctx) {
-        ctx.drawImage(this.image, this.position.x, this.position.y)
+        
+        // Se o background tiver mais de 1 frame, desenha a parte atual da sprite sheet
+
+        if (this.FramesT > 1) {
+            ctx.drawImage(
+                this.image,
+                this.FrameAtual * this.FrameW,       // sourceX: corta a partir do X do frame atual
+                0,                                   // sourceY: topo da imagem
+                this.FrameW,                         // sourceWidth: largura do frame (640)
+                this.FrameH,                         // sourceHeight: altura do frame (360)
+                this.position.x,                     // destX: onde desenha na tela
+                this.position.y,                     // destY: onde desenha na tela
+                this.FrameW,                         // destWidth: largura exibida
+                this.FrameH                          // destHeight: altura exibida
+            );
+        } else {
+
+            // Se o background tiver só 1 frame definido, apenas desenha ele
+
+            ctx.drawImage(this.image, this.position.x, this.position.y);
+        }
     }
 
     update(ctx) {
+        // Se houver mais de 1 frame, avança a animação progressivamente
+        if (this.FramesT > 1) {
+            this.contadorFrames++;
+            if (this.contadorFrames >= this.VFrames) {
+                this.contadorFrames = 0;
+                this.FrameAtual = (this.FrameAtual + 1) % this.FramesT; // Vai de 0 até (FramesT - 1) e reinicia
+            }
+        }
         this.draw(ctx);
     }
 }

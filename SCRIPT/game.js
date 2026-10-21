@@ -228,7 +228,7 @@ function init() {
         jogador = new Player(10, 0, "blue");
         jogador2 = new Player(310, 0, "red");
         gameState = "Menu";
-        backgroundAtual = new backgrounds({image: IMGS.menu});
+        backgroundAtual = new backgrounds({image: IMGS.menu, FramesT: 4, VFrames: 35});
         
         // Inicializando vida do Player 1
         jogador.lifePool[0] =
