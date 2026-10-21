@@ -301,7 +301,7 @@ function animate()
 
         if (p2 === true) 
         {
-            jogador2.update();
+            jogador2.update(canvas);
             jogador2.draw(ctx);
 
             processarColisoesJogadorInimigos(jogador2, inimigos, () => {
