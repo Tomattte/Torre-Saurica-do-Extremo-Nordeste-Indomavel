@@ -2,7 +2,11 @@
 
 // assetloader.js
 
-import { carregarImagens, IMGS } from './assetloader.js';
+import { carregarAssets, IMGS, TRACKS } from './assetloader.js';
+
+// audioplayer.js
+
+import { tocarMusicaFundo } from './audioplayer.js';
 
 // mapas
 
@@ -114,12 +118,18 @@ window.addEventListener('resize', resizeGame);
 
 window.addEventListener("keydown", (event) =>
 {
-    if (event.key === "Enter" && gameState === "Menu") {
-        gameState = "Jogo";
-    }
+    if (event.key === "Enter") {
+        if (event.repeat) return; // Ignora se o usuário estiver segurando a tecla
 
-    if (event.key === "Enter" && gameState === "Game Over") {
-        init();
+        if (gameState === "Menu") {
+            gameState = "Jogo";
+            return;
+        }
+
+        if (gameState === "Game Over") {
+            init();
+            return;
+        }
     }
 
     // Player 1
@@ -217,7 +227,7 @@ function init() {
 
     // Chama a função que carrega os assets
 
-    carregarImagens(() => {
+    carregarAssets(() => {
         // Assim que o navegador baixar tudo, chama a função animate e inicia o loop
 
         if (animacaoId) {
@@ -291,8 +301,17 @@ function animate()
     if (gameState !== "Jogo") {
         
         backgroundAtual.update(ctx); 
+        tocarMusicaFundo(TRACKS.menu);
+
+        if (gameState === "Menu") {
+
+            tocarMusicaFundo(TRACKS.menu);
+
+        }
 
     } else {
+
+        tocarMusicaFundo(TRACKS.main);
 
         // Desenha o background atual
 
