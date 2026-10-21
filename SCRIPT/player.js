@@ -16,6 +16,7 @@ export class Player
         dandoDash = false;
         velocidadeDash = 30;
         framesDash = 0;
+        tempoAteAtirar = 0; //se for 0 pode atirar senao se for maior ainda em colldown
 
         constructor(posicaoX, posicaoY, color)
         {
@@ -32,6 +33,11 @@ export class Player
 
         update()
         {
+            // se o tempo for maior que 0 a cada quadra o cooldown vai diminnuindo
+            if(this.tempoAteAtirar > 0) {
+                this.tempoAteAtirar = this.tempoAteAtirar - 1;
+            }
+
             if (this.colldowndash > 0) 
             {
                 this.colldowndash--;
