@@ -1,68 +1,82 @@
 // IMPORTS
 
 // assetloader.js
-
 import { carregarImagens, IMGS } from './assetloader.js';
 
 // mapas
-
 import { MAPA1 } from '../MAPAS/MAPA1.js';
 import { MAPA2 } from '../MAPAS/MAPA2.js';
 import { MAPA3 } from '../MAPAS/MAPA3.js';
 
 // background.js
-
 import { backgrounds } from './backgrounds.js';
 import { desenharMapa } from './backgrounds.js';
 
 // players.js
-
 import { Player } from './player.js';
 
 // hearts.js
-
 import { Heart } from './hearts.js';
 
 // inimigos.js
+import { Inimigo } from './enemy.js';
+
+// gameover.js
+import { seraGameOver } from './gameover.js';
 
 // colisoes.js
-
 import { 
     criarProjectil, 
     atualizarProjecteis, 
     desenharProjecteis, 
     processarColisoesProjeteisInimigos,
-    processarColisoesJogadorInimigos,
-    projecteis
+    processarColisoesJogadorInimigos, 
+    resolverColisaoMapa
 } from './colisoes.js';
-
-// inimigos temporarios dia4
-let inimigos = [
-    { x: 300, y: 328, largura: 32, altura: 32, derrotado: false }
-];
-
-// gameover.js
-
-export function GameOver() {
-    gameState = "Game Over";
-    backgroundAtual = new backgrounds({ image: IMGS.gameover });
-}
-
-import { seraGameOver } from './gameover.js';
 
 /*--------------------------------------------------------------------*/
 
-//Variáveis Instanciadas
-
 let jogador;
 let jogador2;
-
-let p2;
-
-let gameState;
+let p2 = false;
+let gameState = "Menu";
 let backgroundAtual;
-
 let animacaoId;
+
+// Lista para guardar todos os tiros ativos na tela
+const projecteis = [];
+
+// Lista de inimigos
+let inimigos = [];
+
+// Função para criar os inimigos nas plataformas do mapa
+function criarInimigos() {
+    inimigos = [
+        new Inimigo(200, 288, 1, 150, 350), 
+        new Inimigo(400, 160, 2, 350, 550), 
+        new Inimigo(150, 96, 3, 100, 300)   
+    ];
+}
+
+// Função para reiniciar o jogo
+function reiniciarJogo() {
+    projecteis.length = 0;
+    jogador.posicaoX = 100;
+    jogador.posicaoY = 250;
+    jogador.velocidadeY = 0;
+    
+    // Reinicia corações do Player 1
+    if (jogador.lifePool) {
+        jogador.lifePool.forEach(heart => heart.broken = false);
+    }
+    // Reinicia corações do Player 2 se existir
+    if (jogador2 && jogador2.lifePool) {
+        jogador2.lifePool.forEach(heart => heart.broken = false);
+    }
+
+    criarInimigos();
+    gameState = "Jogo";
+}
 
 /*--------------------------------------------------------------------*/
 // CANVAS CONFIGURATION 
@@ -70,57 +84,35 @@ let animacaoId;
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext('2d');
 
-// Variables to store the original canvas size
-
 const C_WIDTH = canvas.width;
 const C_HEIGHT = canvas.height;
 
 function resizeGame() {
-
-    // Variables to store the current size of the users window
-
     const U_WIDTH = window.innerWidth;
     const U_HEIGHT = window.innerHeight;
-
-    // Calculates the approximate scale based on the user's window size.
-
     const scaleX = U_WIDTH / C_WIDTH;
     const scaleY = U_HEIGHT / C_HEIGHT;
-
-    // The lowest scale is used to avoid cutting off parts of the canvas
-    // Math.floor is used to get a integer value and avoid pixel distortion
-
     let scale = Math.floor(Math.min(scaleX, scaleY));
-    
-    // 1 is set as the minimun scale
-
     if (scale < 1) scale = 1;
-
-    // Canvas is displayed with the final size
-
     canvas.style.width = (C_WIDTH * scale) + 'px';
     canvas.style.height = (C_HEIGHT * scale) + 'px';
 }
 
-// Resizes on page load
 window.addEventListener('load', resizeGame);
-
-// Resizes on window size change
 window.addEventListener('resize', resizeGame);
 
 /*--------------------------------------------------------------------*/
-
 // CONTROLES DO PLAYER
 
 window.addEventListener("keydown", (event) =>
 {
-    if (event.key === "Enter" && gameState === "Menu") {
-        gameState = "Jogo";
+    if (event.key === "Enter") {
+        if (gameState === "Menu" || gameState === "GameOver" || gameState === "Vitoria") {
+            reiniciarJogo();
+        }
     }
 
-    if (event.key === "Enter" && gameState === "Game Over") {
-        init();
-    }
+    if (gameState !== "Jogo") return;
 
     // Player 1
     if (jogador && jogador.vivo) {
@@ -146,25 +138,19 @@ window.addEventListener("keydown", (event) =>
                 jogador.colldowndash = 120;
             }
         }
-        // Disparo com a Barra de Espaço , pessoa 4 eu mateus
+        // Disparo P1
         if (event.code === "Space") {
-            if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
-            // demorei umas 3 horas pra isso ficar redondo
-            // Cria o projétil na posição atual do jogador, ajustando a direção
+            if (event.repeat) return; 
             const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
-            // Ajusta a posição inicial para sair à frente do jogador
             const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
-        
             criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
         }
     }
-    
-    // Ativa o Player 2
 
+    // Ativa o Player 2
     if (event.key === "y") p2 = true;
 
     // Player 2
-
     if (p2 === true && jogador2 && jogador2.vivo) {
         if (event.key === "o") jogador2.pular();
         if (event.key === "ç")
@@ -189,13 +175,11 @@ window.addEventListener("keydown", (event) =>
                 jogador2.colldowndash = 120;
             }
         }
-        // Disparo para o jogador2 (exemplo com a tecla "M")
+        // Disparo P2
         if (event.code === "KeyM") {
             if (event.repeat) return;
-        
             const direcaoTiroP2 = jogador2.viradoPra === -1 ? 'esquerda' : 'direita';
             const posX2 = jogador2.viradoPra === -1 ? jogador2.posicaoX - 10 : jogador2.posicaoX + jogador2.width;
-        
             criarProjectil(projecteis, posX2, jogador2.posicaoY + 10, direcaoTiroP2);
         }
     }
@@ -208,18 +192,13 @@ window.addEventListener("keyup", (event) =>
 
     if (event.key === "ç") jogador2.andandoDireita = false;
     if (event.key === "k") jogador2.andandoEsquerda = false;
-    if (event.key === "u") p2 = false;
+    if (event.key === "y") p2 = false; // Ajustado para desligar com a mesma tecla y
 })
 
 /*--------------------------------------------------------------------*/
 
 function init() {
-
-    // Chama a função que carrega os assets
-
     carregarImagens(() => {
-        // Assim que o navegador baixar tudo, chama a função animate e inicia o loop
-
         if (animacaoId) {
             cancelAnimationFrame(animacaoId);
         }
@@ -229,46 +208,21 @@ function init() {
         jogador2 = new Player(310, 0, "red");
         gameState = "Menu";
         backgroundAtual = new backgrounds({image: IMGS.menu});
+        criarInimigos();
         
-        // Inicializando vida do Player 1
-        jogador.lifePool[0] =
-        new Heart ({
-            x: 0,
-            y: 0,
-            image: IMGS.vidaP1
-        })
-        jogador.lifePool[1] =
-        new Heart ({
-            x: 32,
-            y: 0,
-            image: IMGS.vidaP1
-        })
-        jogador.lifePool[2] =
-        new Heart ({
-            x: 64,
-            y: 0,
-            image: IMGS.vidaP1
-        })
+        // Inicializando vida do Player 1 (Corações)
+        jogador.lifePool = [
+            new Heart({ x: 20, y: 15, image: IMGS.vidaP1 }),
+            new Heart({ x: 55, y: 15, image: IMGS.vidaP1 }),
+            new Heart({ x: 90, y: 15, image: IMGS.vidaP1 })
+        ];
 
-        // Inicializando vida do Player 2
-        jogador2.lifePool[0] =
-        new Heart ({
-            x: (C_WIDTH - 32),
-            y: 0,
-            image: IMGS.vidaP2
-        })
-        jogador2.lifePool[1] =
-        new Heart ({
-            x: (C_WIDTH - 64),
-            y: 0,
-            image: IMGS.vidaP2
-        })
-        jogador2.lifePool[2] =
-        new Heart ({
-            x: (C_WIDTH - 96),
-            y: 0,
-            image: IMGS.vidaP2
-        })
+        // Inicializando vida do Player 2 (Corações)
+        jogador2.lifePool = [
+            new Heart({ x: C_WIDTH - 40, y: 15, image: IMGS.vidaP2 }),
+            new Heart({ x: C_WIDTH - 75, y: 15, image: IMGS.vidaP2 }),
+            new Heart({ x: C_WIDTH - 110, y: 15, image: IMGS.vidaP2 })
+        ];
         
         console.log("Jogo pronto");
         animacaoId = requestAnimationFrame(animate);
@@ -279,28 +233,20 @@ function animate()
 {
     animacaoId = requestAnimationFrame(animate);
 
-    // Limpa o canvas
-
     ctx.clearRect (0, 0, canvas.width, canvas.height);
-
-    // Desenha um fundo branco
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
 
     if (gameState !== "Jogo") {
-        
         backgroundAtual.update(ctx); 
-
     } else {
-
-        // Desenha o background atual
-
+        // Desenha o mapa da branch mateus
         desenharMapa(ctx, MAPA1, IMGS.MAPA1);
 
-        // Desenha o player se o jogo tiver começado
-
+        // Atualiza e desenha o player 1
         jogador.update();
+        resolverColisaoMapa(jogador, MAPA1);
         jogador.draw(ctx);
 
         processarColisoesJogadorInimigos(jogador, inimigos, () => {
@@ -308,9 +254,11 @@ function animate()
             seraGameOver(jogador, jogador2, p2);
         });
 
+        // Atualiza e desenha o player 2 se ativo
         if (p2 === true) 
         {
             jogador2.update();
+            resolverColisaoMapa(jogador2, MAPA1);
             jogador2.draw(ctx);
 
             processarColisoesJogadorInimigos(jogador2, inimigos, () => {
@@ -318,23 +266,54 @@ function animate()
                 seraGameOver(jogador2, jogador, p2);
             });
         }
-
-        //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
-        
-        atualizarProjecteis(projecteis, C_WIDTH);
-
+    
+        // Atualiza projéteis exigindo o mapa da mateus
+        atualizarProjecteis(projecteis, C_WIDTH, MAPA1);
         processarColisoesProjeteisInimigos(projecteis, inimigos);
 
         inimigos = inimigos.filter(i => !i.derrotado);
+        desenharProjecteis(projecteis, ctx);      
 
-        desenharProjecteis(projecteis, ctx);
-
-        console.log("Quantidade de tiros ativos:", projecteis.length);      
-
+        // Atualiza e desenha os inimigos
         inimigos.forEach(inimigo => {
-            ctx.fillStyle = "purple";
-            ctx.fillRect(inimigo.x, inimigo.y, inimigo.largura, inimigo.altura);
+            inimigo.update(MAPA1);
+            inimigo.draw(ctx);
         });
+
+        // Verifica condição de vitória
+        const inimigosRestantes = inimigos.length;
+        if (inimigosRestantes === 0 && gameState === "Jogo") {
+            gameState = "Vitoria";
+        }
+
+        // Desenha o HUD de Inimigos Restantes (as vidas já são desenhadas pelos corações no draw do player)
+        ctx.fillStyle = "black";
+        ctx.font = "16px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText(`Inimigos Restantes: ${inimigosRestantes}`, 20, 65);
+
+        // Desenha os corações na tela para cada jogador
+        jogador.lifePool.forEach(h => h.draw(ctx));
+        if (p2) {
+            jogador2.lifePool.forEach(h => h.draw(ctx));
+        }
+
+    } else if (gameState === "GameOver" || gameState === "Vitoria") {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
+
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        
+        if (gameState === "GameOver") {
+            ctx.fillText("GAME OVER", C_WIDTH / 2, C_HEIGHT / 2 - 20);
+        } else {
+            ctx.fillText("VOCÊ VENCEU!", C_WIDTH / 2, C_HEIGHT / 2 - 20);
+        }
+
+        ctx.font = "16px Arial";
+        ctx.fillText("Pressione [ ENTER ] para reiniciar", C_WIDTH / 2, C_HEIGHT / 2 + 20);
     }
 }
 

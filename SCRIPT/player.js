@@ -7,7 +7,7 @@ export class Player
         velocidadeY = 0;
         velocidadeAndar = 4;
         forcaDoPulo = -9;
-        estaNoChao = true;
+        estaNoChao = false;
         andandoDireita = false;
         andandoEsquerda = false;
         viradoPra = 0;
@@ -16,6 +16,9 @@ export class Player
         dandoDash = false;
         velocidadeDash = 30;
         framesDash = 0;
+        tempoAteAtirar = 0; //se for 0 pode atirar senao se for maior ainda em colldown
+        vivo = true;
+        lifePool = [];
 
         constructor(posicaoX, posicaoY, color)
         {
@@ -73,6 +76,14 @@ export class Player
 
         update()
         {
+
+
+
+            // se o tempo for maior que 0 a cada quadra o cooldown vai diminnuindo
+            if(this.tempoAteAtirar > 0) {
+                this.tempoAteAtirar = this.tempoAteAtirar - 1;
+            }
+
             if (this.colldowndash > 0) 
             {
                 this.colldowndash--;
@@ -97,26 +108,32 @@ export class Player
 
                 if(this.andandoEsquerda) this.velocidadeX = - this.velocidadeAndar;
 
-                this.posicaoX +=this.velocidadeX;
+                this.posicaoX += this.velocidadeX;
 
                 this.velocidadeY += this.gravidade;
                 this.posicaoY += this.velocidadeY;
                 this.estaNoChao = false;
                 
             }
-            
+            /*
             if (this.posicaoY + this.height >= canvas.height)
                 {
                     this.posicaoY = canvas.height - this.height;
                     this.velocidadeY = 0;
                     this.estaNoChao = true;
                 }
+            */
+
+                //deixei apenas os limmites laterais ( mateus ) pra nao sair da tela 
                 if (this.posicaoX + this.width >= canvas.width) this.posicaoX = canvas.width - this.width;
                 if (this.posicaoX <= 0) this.posicaoX = 0;
         }
+
 
         pular()
         {
             if (this.estaNoChao === true) this.velocidadeY = this.forcaDoPulo;
         }
+
+
     }
