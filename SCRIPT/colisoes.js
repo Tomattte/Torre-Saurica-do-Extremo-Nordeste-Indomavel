@@ -6,6 +6,12 @@
 // do jogador com o cenário (plataformas e paredes).
 // ============================================================================
 
+// Instancia o áudio usando o caminho relativo exato do projeto
+const somTiro = new Audio('ASSETS/universfield-pistol-shot-278821 (6).mp3');
+somTiro.volume = 0.4; // Volume controlado para a apresentação
+
+
+
 /**
  * Converte qualquer objeto do jogo para um formato padrão de retângulo
  * com as propriedades x, y, largura e altura.
@@ -57,6 +63,9 @@ export function criarProjectil(projecteis, x, y, direcao) {
         largura: 10,
         altura: 4
     });
+
+    somTiro.currentTime = 0;
+    somTiro.play().catch(e => console.log ( "aguardando clique"));
 }
 
 /**
@@ -177,67 +186,56 @@ export function processarColisoesJogadorInimigos(jogador, inimigos, funcaoPerder
     }
 }
 
+// Plataformas sólidas do MAPA1, em pixels: x e y do canto superior esquerdo, largura e altura.
+// Valores medidos na imagem ASSETS/MAPA1.png (640 x 384).
+export const PLATAFORMAS_MAPA1 = [
+    { x: 512, y: 16,  largura: 114, altura: 14 },   // plataforma no canto superior direito
+    { x: 416, y: 80,  largura: 146, altura: 14 },   // plataforma do meio à direita
+    { x: 32,  y: 112, largura: 146, altura: 14 },   // plataforma da esquerda
+    { x: 224, y: 144, largura: 178, altura: 16 },   // plataforma central
+    { x: 448, y: 208, largura: 146, altura: 14 },   // plataforma da direita
+    { x: 224, y: 240, largura: 146, altura: 16 },   // plataforma central de baixo
+    { x: 0, y: 316, largura: 640, altura: 68 },    // chão
+];
+
 /**
- * Resolve a colisão do jogador com os blocos do mapa.
- * A ideia geral é a seguinte: se o jogador está dentro de um bloco, calcula
- * o quanto ele entrou em cada lado e empurra o jogador para fora pelo lado
- * onde a entrada foi menor (menor penetração).
- * Plataformas são sólidas apenas por cima (one-way): quando o jogador sobe,
- * ele atravessa o bloco por baixo. Quando cai, pousa em cima dele.
- * Esta função só lê a camada 1 do mapa e ajusta a posição do jogador.
+ * Resolve a colisão do jogador com as plataformas listadas acima.
+ * Se o jogador está dentro de uma plataforma, calcula por qual lado ele entrou
+ * e o empurra para fora pelo lado de menor penetração.
+ * Plataformas são sólidas só por cima: ao subir, o jogador atravessa por baixo.
  */
 export function resolverColisaoMapa(jogador, mapa) {
-    if (!mapa || !mapa.layers) return;
+    jogador.estaNoChao = false;   // Assume que não está no chão até encostar em algo
 
-    const tileSize = mapa.tileheight || 32;   // Tamanho de cada bloco em pixels
-    const colunas = mapa.width;               // Blocos por linha do mapa
-    const camadaColisao = mapa.layers[1];     // Camada com os blocos sólidos
+    for (const bloco of PLATAFORMAS_MAPA1) {
+        if (!verificarColisao(jogador, bloco)) continue;   // Não está encostando, passa para a próxima
 
-    if (!camadaColisao || !camadaColisao.data) return;
+        // Quanto o jogador entrou em cada lado da plataforma
+        const sobreposicaoEsquerda = (jogador.posicaoX + jogador.width) - bloco.x;
+        const sobreposicaoDireita = (bloco.x + bloco.largura) - jogador.posicaoX;
+        const sobreposicaoTopo = (jogador.posicaoY + jogador.height) - bloco.y;
+        const sobreposicaoBaixo = (bloco.y + bloco.altura) - jogador.posicaoY;
 
-    const data = camadaColisao.data;
-    jogador.estaNoChao = false;   // Começa assumindo que não está no chão. Se encostar em algo, vira true
+        const menorX = Math.min(sobreposicaoEsquerda, sobreposicaoDireita);
+        const menorY = Math.min(sobreposicaoTopo, sobreposicaoBaixo);
 
-    for (let i = 0; i < data.length; i++) {
-        if (data[i] === 0) continue;   // Posição vazia, não é bloco
-
-        // Mesma conta de antes: converte o índice em coordenadas de pixel
-        const blocoX = (i % colunas) * tileSize;
-        const blocoY = Math.floor(i / colunas) * tileSize;
-        const bloco = { x: blocoX, y: blocoY, largura: tileSize, altura: tileSize };
-
-        if (verificarColisao(jogador, bloco)) {
-            // Calcula quantos pixels o jogador está entrando no bloco em cada lado
-            const sobreposicaoEsquerda = (jogador.posicaoX + jogador.width) - bloco.x;   // Entrou pela esquerda do bloco
-            const sobreposicaoDireita = (bloco.x + bloco.largura) - jogador.posicaoX;    // Entrou pela direita do bloco
-            const sobreposicaoTopo = (jogador.posicaoY + jogador.height) - bloco.y;      // Entrou pela parte de cima do bloco
-            const sobreposicaoBaixo = (bloco.y + bloco.altura) - jogador.posicaoY;       // Entrou pela parte de baixo do bloco
-
-            // O menor valor em cada eixo indica o lado de entrada mais "raso"
-            const menorX = Math.min(sobreposicaoEsquerda, sobreposicaoDireita);
-            const menorY = Math.min(sobreposicaoTopo, sobreposicaoBaixo);
-
-            if (menorX < menorY) {
-                // A entrada mais rasa foi pela lateral: o jogador é empurrado para o lado
-                if (sobreposicaoEsquerda < sobreposicaoDireita) {
-                    jogador.posicaoX = bloco.x - jogador.width;        // Coloca o jogador encostado no lado esquerdo do bloco
-                } else {
-                    jogador.posicaoX = bloco.x + bloco.largura;        // Coloca o jogador encostado no lado direito do bloco
-                }
-                jogador.velocidadeX = 0;   // Zera a velocidade horizontal para não continuar empurrando a parede
+        if (menorX < menorY) {
+            // Entrou pela lateral: empurra o jogador para fora da parede
+            if (sobreposicaoEsquerda < sobreposicaoDireita) {
+                jogador.posicaoX = bloco.x - jogador.width;
             } else {
-                // A entrada mais rasa foi por cima ou por baixo: trata como plataforma só por cima
-
-                // Se o jogador está subindo, ignora o bloco e deixa ele passar por baixo
-                if (jogador.velocidadeY < 0) {
-                    continue;   // Pula para o próximo bloco sem mexer na posição do jogador
-                }
-
-                // Se chegou aqui, o jogador está caindo: pousa em cima do bloco
-                jogador.posicaoY = bloco.y - jogador.height;   // Encosta a base do jogador no topo do bloco
-                jogador.velocidadeY = 0;                       // Para a queda
-                jogador.estaNoChao = true;                     // Marca que o jogador está apoiado
+                jogador.posicaoX = bloco.x + bloco.largura;
             }
+            jogador.velocidadeX = 0;
+        } else {
+            // Entrou por cima ou por baixo
+            if (jogador.velocidadeY < 0) {
+                continue;   // Subindo: ignora a plataforma e deixa o jogador passar por baixo
+            }
+            // Caindo: pousa em cima da plataforma
+            jogador.posicaoY = bloco.y - jogador.height;
+            jogador.velocidadeY = 0;
+            jogador.estaNoChao = true;
         }
     }
 }

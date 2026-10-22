@@ -18,6 +18,9 @@ import {
     resolverColisaoMapa
 } from './colisoes.js';
 
+// Sons do tiro e do acerto
+const somTiro = new Audio('ASSETS/universfield-pistol-shot-278821 (6).mp3');
+
 let jogador;
 let jogador2;
 let p2 = false;
@@ -107,7 +110,9 @@ window.addEventListener("keydown", (event) => {
         if (event.code === "Space" && !event.repeat) {
             const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
             const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
-            criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
+            criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);   
+            somTiro.currentTime = 0;
+            somTiro.play();
         }
     }
 
@@ -129,6 +134,8 @@ window.addEventListener("keydown", (event) => {
             const direcaoTiroP2 = jogador2.viradoPra === -1 ? 'esquerda' : 'direita';
             const posX2 = jogador2.viradoPra === -1 ? jogador2.posicaoX - 10 : jogador2.posicaoX + jogador2.width;
             criarProjectil(projecteis, posX2, jogador2.posicaoY + 10, direcaoTiroP2);
+            somTiro.currentTime = 0;
+            somTiro.play();
         }
     }
 });
@@ -195,7 +202,18 @@ function animate() {
 
         // Desenha as plataformas do mapa
         desenharMapa(ctx, MAPA1, IMGS.MAPA1);
-
+        
+        /**
+         * 
+        
+        // DEBUG: mostra em vermelho os blocos que a colisão usa (remova depois de testar)
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.4)';
+            MAPA1.layers[1].data.forEach((tile, i) => {
+                if (tile !== 0) {
+                    ctx.fillRect((i % MAPA1.width) * 32, Math.floor(i / MAPA1.width) * 32, 32, 32);
+                 }
+            });
+        */
         // Atualiza e desenha o Player 1
         if (jogador && jogador.vivo) {
             jogador.update();
