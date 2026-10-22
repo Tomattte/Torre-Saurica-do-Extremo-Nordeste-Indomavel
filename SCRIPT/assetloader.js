@@ -18,7 +18,11 @@ const IMGloadList = [
 
 const TRACKSloadList = [
     { nome: 'menu', src: 'SOUNDS/TRACKS/TS_Menu_track.mp3'},
-    { nome: 'main', src: 'SOUNDS/TRACKS/TS_Main_track.mp3'}
+    { nome: 'main', src: 'SOUNDS/TRACKS/TS_Main_track.mp3'},
+    { nome: 'bossfight', src: 'SOUNDS/TRACKS/TS_Boss_track.mp3'},
+    { nome: 'gameover', src: 'SOUNDS/TRACKS/TS_GameOver_track.mp3'},
+    { nome: 'pulo', src: 'SOUNDS/EFFECTS/jump_short.wav'},
+    { nome: 'tiro', src: 'SOUNDS/EFFECTS/finger_click.wav'}
 ]
 
 // Função que carrega os assets e então começa o jogo

@@ -6,7 +6,7 @@ import { carregarAssets, IMGS, TRACKS } from './assetloader.js';
 
 // audioplayer.js
 
-import { tocarMusicaFundo } from './audioplayer.js';
+import { tocarMusicaFundo, tocarEfeitoSonoro } from './audioplayer.js';
 
 // mapas
 
@@ -50,6 +50,8 @@ let inimigos = [
 export function GameOver() {
     gameState = "Game Over";
     backgroundAtual = new backgrounds({ image: IMGS.gameover });
+    tocarMusicaFundo(TRACKS.gameover);
+    
 }
 
 import { seraGameOver } from './gameover.js';
@@ -134,7 +136,10 @@ window.addEventListener("keydown", (event) =>
 
     // Player 1
     if (jogador && jogador.vivo) {
-        if (event.key === "w") jogador.pular();
+        if (event.key === "w") 
+        {
+            jogador.pular();
+        }
         if (event.key === "d") 
         {
             jogador.andandoDireita = true;
@@ -159,7 +164,6 @@ window.addEventListener("keydown", (event) =>
         // Disparo com a Barra de Espaço , pessoa 4 eu mateus
         if (event.code === "Space") {
             if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
-            // demorei umas 3 horas pra isso ficar redondo
             // Cria o projétil na posição atual do jogador, ajustando a direção
             const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
             // Ajusta a posição inicial para sair à frente do jogador
@@ -301,7 +305,6 @@ function animate()
     if (gameState !== "Jogo") {
         
         backgroundAtual.update(ctx); 
-        tocarMusicaFundo(TRACKS.menu);
 
         if (gameState === "Menu") {
 
@@ -346,9 +349,7 @@ function animate()
 
         inimigos = inimigos.filter(i => !i.derrotado);
 
-        desenharProjecteis(projecteis, ctx);
-
-        console.log("Quantidade de tiros ativos:", projecteis.length);      
+        desenharProjecteis(projecteis, ctx); 
 
         inimigos.forEach(inimigo => {
             ctx.fillStyle = "purple";

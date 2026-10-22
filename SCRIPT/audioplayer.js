@@ -19,6 +19,7 @@ export function tocarMusicaFundo(novaMusica) {
         musicaAtual = novaMusica;
         musicaAtual.currentTime = 0;
         musicaAtual.loop = true;
+        musicaAtual.volume = 0.15;
     }
 
     // Se a música desejada estiver pausada, da play nela
@@ -28,4 +29,18 @@ export function tocarMusicaFundo(novaMusica) {
             // Continua ignorando o erro silenciosamente até que o usuário interaja de vez
         });
     }
+}
+
+export function tocarEfeitoSonoro(Efeito) {
+
+    if (!Efeito) return;
+
+    // Reseta o áudio para o início caso ele já estivesse tocando
+
+    Efeito.currentTime = 0;
+
+    Efeito.volume = 0.3;
+    Efeito.play().catch(erro => {
+        // Ignora caso o navegador bloqueie antes da primeira interação
+    });
 }

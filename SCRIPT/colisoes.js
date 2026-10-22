@@ -2,7 +2,11 @@
  * Módulo de Colisões - Mateus (Dia 1 ao Dia 4)
  * Funções de tiro, limpeza da tela e toque com inimigos.
  */
-//organizei os contarios porque de algujma forma os tiros nao funcionava 
+
+// Imports para rodar o som do tiro na função criarProjectil()
+
+import { tocarEfeitoSonoro } from './audioplayer.js';
+import { TRACKS } from './assetloader.js';
 
 // Lista para guardar todos os tiros ativos na tela
 export const projecteis = [];
@@ -18,6 +22,7 @@ export function criarProjectil(projecteis, x, y, direcao) {
         largura: 10,                  // Largura do bloco do tiro
         altura: 4                     // Altura do bloco do tiro
     });
+    tocarEfeitoSonoro(TRACKS.tiro);
 }
 
 // Atualiza a posição de cada tiro e limpa os que saem da tela

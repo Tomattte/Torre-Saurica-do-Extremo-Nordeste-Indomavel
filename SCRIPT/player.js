@@ -1,3 +1,6 @@
+import { tocarEfeitoSonoro } from './audioplayer.js';
+import { TRACKS } from './assetloader.js';
+
 export class Player
     {
         width = 32;
@@ -117,6 +120,9 @@ export class Player
 
         pular()
         {
-            if (this.estaNoChao === true) this.velocidadeY = this.forcaDoPulo;
+            if (this.estaNoChao === true) {
+                this.velocidadeY = this.forcaDoPulo;
+                tocarEfeitoSonoro(TRACKS.pulo);
+            }
         }
     }
