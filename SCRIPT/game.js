@@ -29,6 +29,8 @@ import { Heart } from './hearts.js';
 
 // inimigos.js
 
+import { Galinha } from './Galinha.js';
+
 // colisoes.js
 
 import { 
@@ -39,11 +41,6 @@ import {
     processarColisoesJogadorInimigos,
     projecteis
 } from './colisoes.js';
-
-// inimigos temporarios dia4
-let inimigos = [
-    { x: 300, y: 328, largura: 32, altura: 32, derrotado: false }
-];
 
 // gameover.js
 
@@ -69,6 +66,10 @@ let gameState;
 let backgroundAtual;
 
 let animacaoId;
+
+let inimigos = [];
+let ovos = [];
+
 
 /*--------------------------------------------------------------------*/
 // CANVAS CONFIGURATION 
@@ -135,7 +136,7 @@ window.addEventListener("keydown", (event) =>
     }
 
     // Player 1
-    if (jogador && jogador.vivo) {
+    if (jogador && jogador.vivo && gameState === "Jogo") {
         if (event.key === "w") 
         {
             jogador.pular();
@@ -245,6 +246,7 @@ function init() {
         backgroundAtual = new backgrounds({image: IMGS.menu, FramesT: 4, VFrames: 35});
         
         // Inicializando vida do Player 1
+
         jogador.lifePool[0] =
         new Heart ({
             x: 0,
@@ -265,6 +267,7 @@ function init() {
         })
 
         // Inicializando vida do Player 2
+
         jogador2.lifePool[0] =
         new Heart ({
             x: (C_WIDTH - 32),
@@ -284,6 +287,17 @@ function init() {
             image: IMGS.vidaP2
         })
         
+        // Inicializando inimigos
+
+        inimigos = [
+            new Galinha({
+            x: 300,
+            y: 30,
+            direcao: -1,
+            imgskin: IMGS.galinha
+            })
+        ];
+
         console.log("Jogo pronto");
         animacaoId = requestAnimationFrame(animate);
     });
@@ -352,9 +366,58 @@ function animate()
         desenharProjecteis(projecteis, ctx); 
 
         inimigos.forEach(inimigo => {
-            ctx.fillStyle = "purple";
-            ctx.fillRect(inimigo.x, inimigo.y, inimigo.largura, inimigo.altura);
+            inimigo.update(canvas);
+            if (inimigo.ovoPendente) {
+                ovos.push(inimigo.ovoPendente);
+                inimigo.ovoPendente = null;
+            }
+            inimigo.draw(ctx);
+        }); 
+
+        ovos.forEach(ovo => {
+            ovo.update(canvas);
+            ovo.draw(ctx);
         });
+
+        // Atualiza inimigos e captura os ovos gerados pelas galinhas
+
+        inimigos.forEach(inimigo => {
+            inimigo.update(canvas);
+            
+            if (typeof inimigo.gerarOvos === 'function') {
+                const ovoGerado = inimigo.gerarOvos();
+                if (ovoGerado) {
+                // Define o comportamento de eclosão usando o escopo do game.js
+                    ovoGerado.onHatch = (ovoCriado) => {
+                        inimigos.push(
+                            new Galinha({
+                                x: ovoCriado.x,
+                                y: ovoCriado.y,
+                                imgskin: ovoCriado.img,
+                                direcao: Math.random() < 0.5 ? -1 : 1
+                            })
+                        );
+                    };
+
+                    ovos.push(ovoGerado);
+                }
+            }
+
+            inimigo.draw(ctx);
+        });
+
+        // Atualiza e desenha os ovos
+
+        for (let i = ovos.length - 1; i >= 0; i--) {
+            const ovo = ovos[i];
+            
+            ovo.update(); // O ovo gerencia todo o tempo e choca sozinho
+            ovo.draw(ctx);
+
+            if (ovo.chocado) {
+                ovos.splice(i, 1);
+            }
+        }
     }
 }
 

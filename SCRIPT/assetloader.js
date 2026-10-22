@@ -11,6 +11,7 @@ const IMGloadList = [
     { nome: 'vidaP1', src: 'ASSETS/HEARTP1.png'},
     { nome: 'vidaP2', src: 'ASSETS/HEARTP2.png'},
     //{ nome: 'player', src: 'ASSETS/player_sprite.png' },
+    { nome: 'galinha', src: 'ASSETS/galinha_spritesheet.png'},
     { nome: 'MAPA1', src: 'ASSETS/MAPA1.png'},
     { nome: 'MAPA2', src: 'ASSETS/MAPA2.png'},
     { nome: 'MAPA3', src: 'ASSETS/MAPA3.png'}
