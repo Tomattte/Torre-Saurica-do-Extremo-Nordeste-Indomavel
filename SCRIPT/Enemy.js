@@ -47,10 +47,6 @@ export class Enemy {
     }
   }
 
-  get vivo() {
-    return !this.derrotado && this.vida > 0;
-  }
-
   receberDano() {
     this.vida -= 1;
     if (this.vida <= 0) {

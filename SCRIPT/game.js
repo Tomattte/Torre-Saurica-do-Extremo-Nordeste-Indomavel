@@ -30,6 +30,7 @@ import { Heart } from './hearts.js';
 // inimigos.js
 
 import { Galinha } from './Galinha.js';
+import { Cacto } from './Cacto.js';
 
 export function contaTipoInimigo(inimigosArray, inimigosTipo) {
     return inimigosArray.filter(i => i instanceof inimigosTipo).length;
@@ -73,6 +74,7 @@ let animacaoId;
 
 let inimigos = [];
 let ovos = [];
+let projeteisInimigos = [];
 
 
 /*--------------------------------------------------------------------*/
@@ -299,6 +301,12 @@ function init() {
             y: 30,
             direcao: -1,
             imgskin: IMGS.galinha
+            }),
+            new Cacto({
+            x: 500,
+            y: 200,
+            direcao: 1,
+            imgskin: IMGS.cacto
             })
         ];
 
@@ -373,7 +381,7 @@ function animate()
 
         let podeGerarOvos = contaTipoInimigo(inimigos, Galinha) < 8;
 
-        console.log("Galinhas na tela: ", contaTipoInimigo(inimigos, Galinha));
+        console.log("Cactos na tela: ", contaTipoInimigo(inimigos, Cacto));
 
         // Atualiza inimigos e captura os ovos gerados pelas galinhas
 

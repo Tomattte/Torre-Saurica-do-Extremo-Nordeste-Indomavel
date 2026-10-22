@@ -46,6 +46,7 @@ export class Galinha extends Enemy {
   }
 
   update(canvas) {
+    
     if (this.direcao === 1) {
       this.velocidadeX = this.velocidade;
     } else if (this.direcao === -1) {
