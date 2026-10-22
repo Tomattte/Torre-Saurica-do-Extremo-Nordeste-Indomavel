@@ -31,6 +31,10 @@ import { Heart } from './hearts.js';
 
 import { Galinha } from './Galinha.js';
 
+export function contaTipoInimigo(inimigosArray, inimigosTipo) {
+    return inimigosArray.filter(i => i instanceof inimigosTipo).length;
+}
+
 // colisoes.js
 
 import { 
@@ -365,42 +369,22 @@ function animate()
 
         desenharProjecteis(projecteis, ctx); 
 
-        inimigos.forEach(inimigo => {
-            inimigo.update(canvas);
-            if (inimigo.ovoPendente) {
-                ovos.push(inimigo.ovoPendente);
-                inimigo.ovoPendente = null;
-            }
-            inimigo.draw(ctx);
-        }); 
+        // Retorna true se tiverem menos de 8 galinhas na tela
 
-        ovos.forEach(ovo => {
-            ovo.update(canvas);
-            ovo.draw(ctx);
-        });
+        let podeGerarOvos = contaTipoInimigo(inimigos, Galinha) < 8;
+
+        console.log("Galinhas na tela: ", contaTipoInimigo(inimigos, Galinha));
 
         // Atualiza inimigos e captura os ovos gerados pelas galinhas
 
         inimigos.forEach(inimigo => {
             inimigo.update(canvas);
-            
-            if (typeof inimigo.gerarOvos === 'function') {
-                const ovoGerado = inimigo.gerarOvos();
-                if (ovoGerado) {
-                // Define o comportamento de eclosão usando o escopo do game.js
-                    ovoGerado.onHatch = (ovoCriado) => {
-                        inimigos.push(
-                            new Galinha({
-                                x: ovoCriado.x,
-                                y: ovoCriado.y,
-                                imgskin: ovoCriado.img,
-                                direcao: Math.random() < 0.5 ? -1 : 1
-                            })
-                        );
-                    };
 
-                    ovos.push(ovoGerado);
-                }
+            // Se puder gerar ovo e o inimigo for uma galinha, gera um objeto ovo e o adiciona no array ovos
+            
+            if (podeGerarOvos && typeof inimigo.gerarOvos === 'function') {
+                const ovoGerado = inimigo.gerarOvos();
+                if (ovoGerado) ovos.push(ovoGerado);
             }
 
             inimigo.draw(ctx);
@@ -411,7 +395,7 @@ function animate()
         for (let i = ovos.length - 1; i >= 0; i--) {
             const ovo = ovos[i];
             
-            ovo.update(); // O ovo gerencia todo o tempo e choca sozinho
+            ovo.update(inimigos, Galinha, C_WIDTH, C_HEIGHT, podeGerarOvos)
             ovo.draw(ctx);
 
             if (ovo.chocado) {

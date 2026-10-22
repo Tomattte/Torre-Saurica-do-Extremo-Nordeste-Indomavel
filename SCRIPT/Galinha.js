@@ -10,7 +10,7 @@ export class Galinha extends Enemy {
       altura: 32,
       imgskin: imgskin,
       vida: 2,
-      velocidade: 2,
+      velocidade: 3,
       frames_totaisX: 4,
       frames_totaisY: 4 
     });

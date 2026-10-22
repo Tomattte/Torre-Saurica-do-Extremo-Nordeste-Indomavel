@@ -13,7 +13,7 @@ export class Enemy {
   movendo = true;
   gravidade = 0.4;
 
-  constructor({ x, y, largura = 32, altura = 32, imgskin, vida = 1, velocidade = 40, frames_totaisX, frames_totaisY } = {}) {
+  constructor({ x, y, largura = 32, altura = 32, imgskin, vida = 1, velocidade = 4, frames_totaisX, frames_totaisY } = {}) {
     this.largura = largura;
     this.altura = altura;
     this.x = x;
