@@ -203,10 +203,12 @@ function animate() {
         // Desenha as plataformas do mapa
         desenharMapa(ctx, MAPA1, IMGS.MAPA1);
         
-        /**
-         * 
         
-        // DEBUG: mostra em vermelho os blocos que a colisão usa (remova depois de testar)
+         //usei esse codigo ai embaixo pra achar as verdadeiras hitbox do jogo.
+         //se o senho quiser o senho descomenta ele e roda com ele ativo que o senhor ver
+         //as hitbox
+        /** 
+        //DEBUG: mostra em vermelho os blocos que a colisão usa
             ctx.fillStyle = 'rgba(255, 0, 0, 0.4)';
             MAPA1.layers[1].data.forEach((tile, i) => {
                 if (tile !== 0) {

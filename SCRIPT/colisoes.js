@@ -76,11 +76,12 @@ export function criarProjectil(projecteis, x, y, direcao) {
  * A lista é percorrida de trás para frente porque o splice() remove
  * um item e desloca os seguintes. Se fosse de frente para trás, alguns
  * tiros seriam pulados.
- * Os blocos sólidos são lidos da camada 1 do mapa (mapa.layers[1]),
+ * Os blocos sólidos são as mesmas plataformas usadas pelo jogador do mapa (mapa.layers[1]),
+ * assim o tiro  e o jogador batem na mesmas superfices.
  * onde cada valor diferente de 0 indica um bloco.
  */
 export function atualizarProjecteis(projecteis, larguraCanvas, mapa) {
-    const tileSize = mapa.tileheight || 32;   // Tamanho de cada bloco do mapa em pixels (32 se não estiver definido)
+    const tileSize = mapa.tileheight || 32;   // Tamanho de cada bloco do mapa em pixels 32
     const colunas = mapa.width;               // Quantidade de blocos em cada linha do mapa
     const camadaColisao = mapa.layers[1];     // Camada que guarda quais blocos são sólidos
     const dataColisao = camadaColisao ? camadaColisao.data : null;
@@ -95,7 +96,7 @@ export function atualizarProjecteis(projecteis, larguraCanvas, mapa) {
             p.x -= p.velocidade;
         }
 
-        // Remoção 1: o tiro saiu da tela (passou da borda direita ou esquerda)
+        // Remoção 1: o tiro saiu da tela
         if (p.x > larguraCanvas || p.x + p.largura < 0) {
             projecteis.splice(i, 1);
             continue;   // Já foi removido, então pula para o próximo tiro
@@ -187,7 +188,9 @@ export function processarColisoesJogadorInimigos(jogador, inimigos, funcaoPerder
 }
 
 // Plataformas sólidas do MAPA1, em pixels: x e y do canto superior esquerdo, largura e altura.
-// Valores medidos na imagem ASSETS/MAPA1.png (640 x 384).
+// Valores ajustados manualmente: os dados da camada de colisão do Tiled (MAPA1.js)
+// não batiam com a imagem ASSETS/MAPA1.png, e o jogador flutuava sobre o cenário.
+// Os valores foram corrigidos testando as hitboxes com o modo debug do game.js.
 export const PLATAFORMAS_MAPA1 = [
     { x: 512, y: 16,  largura: 114, altura: 14 },   // plataforma no canto superior direito
     { x: 416, y: 80,  largura: 146, altura: 14 },   // plataforma do meio à direita
@@ -196,7 +199,8 @@ export const PLATAFORMAS_MAPA1 = [
     { x: 448, y: 208, largura: 146, altura: 14 },   // plataforma da direita
     { x: 224, y: 240, largura: 146, altura: 16 },   // plataforma central de baixo
     { x: 0, y: 316, largura: 640, altura: 68 },    // chão
-];
+];//usei pra deixar as plataformas com o tamanho da hitbox que queria, porque senao o 
+  //o boneco ficava flutuando no ar
 
 /**
  * Resolve a colisão do jogador com as plataformas listadas acima.
@@ -221,6 +225,7 @@ export function resolverColisaoMapa(jogador, mapa) {
 
         if (menorX < menorY) {
             // Entrou pela lateral: empurra o jogador para fora da parede
+            // Se entrou entrou mais pela esquerda do Bloco, empurra  o jogador para a esquerda dele
             if (sobreposicaoEsquerda < sobreposicaoDireita) {
                 jogador.posicaoX = bloco.x - jogador.width;
             } else {
@@ -230,7 +235,7 @@ export function resolverColisaoMapa(jogador, mapa) {
         } else {
             // Entrou por cima ou por baixo
             if (jogador.velocidadeY < 0) {
-                continue;   // Subindo: ignora a plataforma e deixa o jogador passar por baixo
+                continue;   // Subindo ignora a plataforma e deixa o jogador passar por baixo
             }
             // Caindo: pousa em cima da plataforma
             jogador.posicaoY = bloco.y - jogador.height;
@@ -244,9 +249,6 @@ export function resolverColisaoMapa(jogador, mapa) {
  * Função auxiliar que trata a cabeça do jogador batendo na parte de baixo de um bloco.
  * Se o jogador estiver subindo e se sobrepor ao bloco, é colocado logo abaixo dele
  * e a velocidade vertical é zerada, cortando o pulo.
- * Atenção: esta função não é chamada em nenhum lugar deste arquivo, então hoje
- * não tem efeito. Ela usa os nomes vy e velY, que são diferentes dos nomes
- * usados em resolverColisaoMapa (velocidadeY e posicaoY).
  */
 function verificarColisaoCabeca(player, plataforma) {
     const pBox = obterCaixa(player);
