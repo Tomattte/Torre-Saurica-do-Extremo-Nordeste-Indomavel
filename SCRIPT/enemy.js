@@ -1,3 +1,4 @@
+//placebo
 export class Inimigo {
     constructor(x, y, tipo = 1, xMin = 0, xMax = 640) {
         this.posicaoX = x;
