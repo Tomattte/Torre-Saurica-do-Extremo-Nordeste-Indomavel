@@ -17,10 +17,9 @@ export class Cacto extends Enemy {
 
     this.velocidadeX = 0;
     this.velocidadeY = 0;
+    this.direcao = direcao;
     this.cabecas = this.vida;
     this.maxCabecas = 3;
-    this.direcao = direcao;
-    this.vivo = true;
 
     this.framesParaCura = 300;
     this.framesParaTiroSup = 150;
@@ -29,7 +28,6 @@ export class Cacto extends Enemy {
   }
 
   receberDano(quantidade = 1) {
-    if (!this.vivo) return false;
 
     this.cabecas = Math.max(0, this.cabecas - quantidade);
     this.vida = this.cabecas;

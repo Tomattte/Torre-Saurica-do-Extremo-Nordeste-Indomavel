@@ -6,9 +6,9 @@ export class Galinha extends Enemy {
     super({
       x,
       y,
+      imgskin: imgskin,
       largura: 32,
       altura: 32,
-      imgskin: imgskin,
       vida: 2,
       velocidade: 3,
       frames_totaisX: 4,

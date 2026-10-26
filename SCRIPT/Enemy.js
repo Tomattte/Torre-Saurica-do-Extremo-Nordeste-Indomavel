@@ -10,7 +10,6 @@ export class Enemy {
   frameY = 0;             // Linha atual da animação (ex: 0 para parado, 1 para andar)
   contadorFrames = 0;     // Controla a velocidade da troca de frames
   velocidadeAnimacao = 5; // Quanto menor, mais rápida é a animação
-  movendo = true;
   gravidade = 0.4;
 
   constructor({ x, y, largura = 32, altura = 32, imgskin, vida = 1, velocidade = 4, frames_totaisX, frames_totaisY } = {}) {

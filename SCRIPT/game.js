@@ -31,6 +31,7 @@ import { Heart } from './hearts.js';
 
 import { Galinha } from './galinha.js';
 import { Cacto } from './cacto.js';
+import { Ptero } from './ptero.js';
 
 export function contaTipoInimigo(inimigosArray, inimigosTipo) {
     return inimigosArray.filter(i => i instanceof inimigosTipo).length;
@@ -303,12 +304,18 @@ function init() {
             y: 30,
             direcao: -1,
             imgskin: IMGS.galinha
-            }),*/
+            }),
             new Cacto({
             x: 100,
             y: 100,
             direcao: 1,
             imgskin: IMGS.cacto
+            }),*/
+            new Ptero({
+            x: 320,
+            y: 64,
+            direcao: 1,
+            imgskin: IMGS.ptero
             })
         ];
 
@@ -380,8 +387,6 @@ function animate()
         }
 
         //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
-
-        console.log (projecteisInimigos.length);
         
         atualizarProjecteis(projecteis, C_WIDTH);
         atualizarProjecteis(projecteisInimigos, C_WIDTH);
