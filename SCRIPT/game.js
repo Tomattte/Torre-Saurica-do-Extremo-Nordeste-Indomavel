@@ -157,10 +157,9 @@ window.addEventListener("keydown", (event) =>
             if (jogador.podedash === true)
             {
                 jogador.dandoDash = true;
-                jogador.framesDash = 3;
-                //jogador.velocidadeDash = 8;
-                //jogador.framesDash = 25;
-                //jogador.contadorFrames = 0;
+                jogador.velocidadeDash = 10;
+                jogador.framesDash = 15;
+                jogador.contadorFrames = 0;
                 jogador.andandoEsquerda = false;
                 jogador.andandoDireita = false;
                 jogador.colldowndash = 120;
@@ -176,6 +175,7 @@ window.addEventListener("keydown", (event) =>
             const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
         
         criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
+        }
     }
     
     // Ativa o Player 2
@@ -194,10 +194,9 @@ window.addEventListener("keydown", (event) =>
             if (jogador2.podedash === true) 
             {
                 jogador2.dandoDash = true;
-                jogador2.framesDash = 3;
-                //jogador2.velocidadeDash = 8;
-                //jogador2.framesDash = 25;
-                //jogador2.contadorFrames = 0;
+                jogador2.velocidadeDash = 10;
+                jogador2.framesDash = 15;
+                jogador2.contadorFrames = 0;
                 jogador2.andandoEsquerda = false;
                 jogador2.andandoDireita = false;
                 jogador2.colldowndash = 120;
