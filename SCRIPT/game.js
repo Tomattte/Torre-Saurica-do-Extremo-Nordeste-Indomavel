@@ -54,7 +54,6 @@ export function GameOver() {
     gameState = "Game Over";
     backgroundAtual = new backgrounds({ image: IMGS.gameover });
     tocarMusicaFundo(TRACKS.gameover);
-    
 }
 
 import { seraGameOver } from './gameover.js';
@@ -130,6 +129,8 @@ window.addEventListener('resize', resizeGame);
 
 window.addEventListener("keydown", (event) =>
 {
+    // Mudanças de tela
+
     if (event.key === "Enter") {
         if (event.repeat) return; // Ignora se o usuário estiver segurando a tecla
 
@@ -145,27 +146,21 @@ window.addEventListener("keydown", (event) =>
     }
 
     // Player 1
-    if (jogador && jogador.vivo && gameState === "Jogo") {
-        if (event.key === "w") 
-        {
-            jogador.pular();
-        }
-        if (event.key === "d") 
-        {
-            jogador.andandoDireita = true;
-            jogador.viradoPra = 1;
-        }
-        if (event.key === "a") 
-        {
-            jogador.andandoEsquerda = true;
-            jogador.viradoPra = -1;
-        }
+    if (jogador && jogador.vivo) {
+        if (event.key === "w") jogador.pular();
+
+        if (event.key === "d") jogador.andandoDireita = true;
+        if (event.key === "a") jogador.andandoEsquerda = true;
+
         if (event.code === "ShiftLeft") 
         {
             if (jogador.podedash === true)
             {
                 jogador.dandoDash = true;
                 jogador.framesDash = 3;
+                //jogador.velocidadeDash = 8;
+                //jogador.framesDash = 25;
+                //jogador.contadorFrames = 0;
                 jogador.andandoEsquerda = false;
                 jogador.andandoDireita = false;
                 jogador.colldowndash = 120;
@@ -174,13 +169,13 @@ window.addEventListener("keydown", (event) =>
         // Disparo com a Barra de Espaço , pessoa 4 eu mateus
         if (event.code === "Space") {
             if (event.repeat) return; // Evita disparo contínuo ao segurar a tecla
+ 
             // Cria o projétil na posição atual do jogador, ajustando a direção
             const direcaoTiro = jogador.viradoPra === -1 ? 'esquerda' : 'direita';
             // Ajusta a posição inicial para sair à frente do jogador
             const posX = jogador.viradoPra === -1 ? jogador.posicaoX - 10 : jogador.posicaoX + jogador.width;
         
-            criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
-        }
+        criarProjectil(projecteis, posX, jogador.posicaoY + 10, direcaoTiro);
     }
     
     // Ativa o Player 2
@@ -191,23 +186,18 @@ window.addEventListener("keydown", (event) =>
 
     if (p2 === true && jogador2 && jogador2.vivo) {
         if (event.key === "o") jogador2.pular();
-        if (event.key === "ç")
-        {
-            jogador2.andandoDireita = true;
-            jogador2.viradoPra = 1;
-        }
-        if (event.key === "k")
-        {
-            jogador2.andandoEsquerda = true;
-            jogador2.viradoPra = -1;
-        }
+        if (event.key === "ç") jogador2.andandoDireita = true;
+        if (event.key === "k") jogador2.andandoEsquerda = true;
 
         if (event.key === "1") 
         {
-            if (jogador2.podedash === true)
+            if (jogador2.podedash === true) 
             {
                 jogador2.dandoDash = true;
                 jogador2.framesDash = 3;
+                //jogador2.velocidadeDash = 8;
+                //jogador2.framesDash = 25;
+                //jogador2.contadorFrames = 0;
                 jogador2.andandoEsquerda = false;
                 jogador2.andandoDireita = false;
                 jogador2.colldowndash = 120;
@@ -249,8 +239,8 @@ function init() {
         }
 
         p2 = false;
-        jogador = new Player(10, 0, "blue");
-        jogador2 = new Player(310, 0, "red");
+        jogador = new Player(10, 0, IMGS.player);
+        jogador2 = new Player(310, 0, IMGS.player2);
         gameState = "Menu";
         backgroundAtual = new backgrounds({image: IMGS.menu, FramesT: 4, VFrames: 35});
         
@@ -334,7 +324,7 @@ function animate()
 
     // Desenha um fundo branco
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "orange";
     ctx.fillRect(0, 0, C_WIDTH, C_HEIGHT);
 
     if (gameState !== "Jogo") {
@@ -357,7 +347,7 @@ function animate()
 
         // Desenha o player se o jogo tiver começado
 
-        jogador.update();
+        jogador.update(canvas);
         jogador.draw(ctx);
 
         processarColisoesJogadorInimigos(jogador, inimigos, () => {
@@ -372,7 +362,7 @@ function animate()
         
         if (p2 === true) 
         {
-            jogador2.update();
+            jogador2.update(canvas);
             jogador2.draw(ctx);
 
             processarColisoesJogadorInimigos(jogador2, inimigos, () => {
