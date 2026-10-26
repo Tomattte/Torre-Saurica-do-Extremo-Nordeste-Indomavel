@@ -1,4 +1,4 @@
-import { Enemy } from "./Enemy.js";
+import { Enemy } from "./enemy.js";
 import { Ovo } from "./ovo.js";
 
 export class Galinha extends Enemy {

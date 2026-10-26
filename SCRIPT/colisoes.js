@@ -8,9 +8,6 @@
 import { tocarEfeitoSonoro } from './audioplayer.js';
 import { TRACKS } from './assetloader.js';
 
-// Lista para guardar todos os tiros ativos na tela
-export const projecteis = [];
-
 //mateus 17/10/2026 19:42 passei 3 horas pra funcionar e terminar  a tesk do dia 4
 // Cria o tiro na posição certa e bota na lista de projéteis ativos
 export function criarProjectil(projecteis, x, y, direcao) {
@@ -32,9 +29,9 @@ export function atualizarProjecteis(projecteis, larguraCanvas) {
         const p = projecteis[i];
 
         // Move o tiro pro lado que o boneco tava virado
-        if (p.direcao === 'direita') {
+        if (p.direcao === 'direita' || p.direcao === 1) {
             p.x += p.velocidade;
-        } else if (p.direcao === 'esquerda') {
+        } else if (p.direcao === 'esquerda' || p.direcao === -1) {
             p.x -= p.velocidade;
         }
 
@@ -96,7 +93,7 @@ export function processarColisoesProjeteisInimigos(projecteis, inimigos) {
 
             // Se o tiro encostou no inimigo, marca ele como derrotado e apaga o tiro
             if (verificarColisao(p, inimigo)) {
-                inimigo.derrotado = true;
+                inimigo.receberDano();
                 projecteis.splice(i, 1);// splice é bom de mais
                 break;
             }
@@ -104,7 +101,30 @@ export function processarColisoesProjeteisInimigos(projecteis, inimigos) {
     }
 }
 
+// Checa se o projetil de um inimigo atingiu o jogador
+
+// Diferente do processarColisoesProjeteisInimigos que percorre todos os inimigos ativos
+// essa função só checa a colisão com um jogador por chamada
+
+export function processarColisoesProjeteisJogador(projecteis, jogador, funcaoPerderVida) {
+    for (let i = projecteis.length - 1; i >= 0; i--) {
+        const p = projecteis[i];
+
+        //if (inimigo.derrotado) continue;
+
+        // Se o tiro encostou no jogador, ele leva dano e apaga o tiro
+        if (verificarColisao(p, jogador)) {
+             if (typeof funcaoPerderVida === 'function') {
+                funcaoPerderVida();
+                projecteis.splice(i, 1);
+            }
+            break;
+        }
+    }
+}
+
 // Lógica pro caso do player encostar num inimigo vivo
+
 export function processarColisoesJogadorInimigos(jogador, inimigos, funcaoPerderVida) {
     for (let i = 0; i < inimigos.length; i++) {
         const inimigo = inimigos[i];

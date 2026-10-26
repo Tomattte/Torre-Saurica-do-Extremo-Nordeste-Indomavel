@@ -29,8 +29,8 @@ import { Heart } from './hearts.js';
 
 // inimigos.js
 
-import { Galinha } from './Galinha.js';
-import { Cacto } from './Cacto.js';
+import { Galinha } from './galinha.js';
+import { Cacto } from './cacto.js';
 
 export function contaTipoInimigo(inimigosArray, inimigosTipo) {
     return inimigosArray.filter(i => i instanceof inimigosTipo).length;
@@ -44,7 +44,7 @@ import {
     desenharProjecteis, 
     processarColisoesProjeteisInimigos,
     processarColisoesJogadorInimigos,
-    projecteis
+    processarColisoesProjeteisJogador,
 } from './colisoes.js';
 
 // gameover.js
@@ -74,7 +74,9 @@ let animacaoId;
 
 let inimigos = [];
 let ovos = [];
-let projeteisInimigos = [];
+
+export const projecteis = [];
+export const projecteisInimigos = [];
 
 
 /*--------------------------------------------------------------------*/
@@ -296,15 +298,15 @@ function init() {
         // Inicializando inimigos
 
         inimigos = [
-            new Galinha({
+           /* new Galinha({
             x: 300,
             y: 30,
             direcao: -1,
             imgskin: IMGS.galinha
-            }),
+            }),*/
             new Cacto({
-            x: 500,
-            y: 200,
+            x: 100,
+            y: 100,
             direcao: 1,
             imgskin: IMGS.cacto
             })
@@ -356,6 +358,11 @@ function animate()
             seraGameOver(jogador, jogador2, p2);
         });
 
+        /*processarColisoesProjeteisJogador(projecteisInimigos, jogador, () => {
+            jogador.levaDano();
+            seraGameOver(jogador, jogador2, p2);
+        });*/
+        
         if (p2 === true) 
         {
             jogador2.update();
@@ -365,28 +372,36 @@ function animate()
                 jogador2.levaDano();
                 seraGameOver(jogador2, jogador, p2);
             });
+
+            /*processarColisoesProjeteisJogador(projecteisInimigos, jogador2, () => {
+                jogador2.levaDano();
+                seraGameOver(jogador2, jogador, p2);
+            });*/
         }
 
         //pessoa 4 (mateus pro player) vou adicionar projeteis aqui
+
+        console.log (projecteisInimigos.length);
         
         atualizarProjecteis(projecteis, C_WIDTH);
+        atualizarProjecteis(projecteisInimigos, C_WIDTH);
 
         processarColisoesProjeteisInimigos(projecteis, inimigos);
 
         inimigos = inimigos.filter(i => !i.derrotado);
 
         desenharProjecteis(projecteis, ctx); 
+        desenharProjecteis(projecteisInimigos, ctx);
 
         // Retorna true se tiverem menos de 8 galinhas na tela
 
         let podeGerarOvos = contaTipoInimigo(inimigos, Galinha) < 8;
 
-        console.log("Cactos na tela: ", contaTipoInimigo(inimigos, Cacto));
-
         // Atualiza inimigos e captura os ovos gerados pelas galinhas
 
         inimigos.forEach(inimigo => {
-            inimigo.update(canvas);
+
+            inimigo.update(canvas, jogador, jogador2, p2);
 
             // Se puder gerar ovo e o inimigo for uma galinha, gera um objeto ovo e o adiciona no array ovos
             
