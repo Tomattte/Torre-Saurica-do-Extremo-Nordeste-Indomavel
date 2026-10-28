@@ -7,7 +7,7 @@ export class Cacto extends Enemy {
       x,
       y,
       imgskin: imgskin,
-      largura: 64,
+      largura: 32,
       altura: 64,
       vida: 3,
       velocidade: 0,

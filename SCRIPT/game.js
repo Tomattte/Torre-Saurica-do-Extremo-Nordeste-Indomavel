@@ -238,8 +238,8 @@ function init() {
         }
 
         p2 = false;
-        jogador = new Player(10, 0, IMGS.player);
-        jogador2 = new Player(310, 0, IMGS.player2);
+        jogador = new Player(100, 300, IMGS.player);
+        jogador2 = new Player(500, 300, IMGS.player2);
         gameState = "Menu";
         backgroundAtual = new backgrounds({image: IMGS.menu, FramesT: 4, VFrames: 35});
         
@@ -293,25 +293,25 @@ function init() {
             y: 30,
             direcao: -1,
             imgskin: IMGS.galinha
-            }),
+            }),*/
             new Cacto({
             x: 100,
             y: 100,
             direcao: 1,
             imgskin: IMGS.cacto
-            }),*/
+            })/*,
             new Ptero({
             x: 320,
             y: 64,
             direcao: 1,
             imgskin: IMGS.ptero
-            })
+            })*/
         ];
 
         console.log("Jogo pronto");
         animacaoId = requestAnimationFrame(animate);
     });
-}
+}   
 
 function animate()
 {

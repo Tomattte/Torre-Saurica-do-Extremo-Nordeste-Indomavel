@@ -172,7 +172,25 @@ export class Player
             /////////////////////////////////////////////////////////////////////////////////////////////////
             //Animação do Player
 
-            if (this.dandoDash) // DASHAR
+            
+            if (this.checaVida() <= 0) 
+            {
+                this.frameY = this.viradoPra === 1 ? 11 : 10;
+                this.velocidadeAnimacao = 2;
+                this.contadorFrames++;
+                let frameCalculado = Math.floor(this.contadorFrames / this.velocidadeAnimacao);
+                this.frameX = frameCalculado % this.framesAndar; 
+                this.vivo = false;
+            } 
+            else if (this.imortal) 
+            {
+                this.frameY = this.viradoPra === 1 ? 9 : 8;
+                this.velocidadeAnimacao = 2;
+                this.contadorFrames++;
+                let frameCalculado = Math.floor(this.contadorFrames / this.velocidadeAnimacao);
+                this.frameX = frameCalculado % this.framesAndar; 
+            }
+            else if (this.dandoDash) // DASHAR
             {
                 this.frameY = this.viradoPra === 1 ? 5 : 4;
                 this.velocidadeAnimacao = 6.25;
