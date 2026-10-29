@@ -11,6 +11,9 @@ export class Enemy {
   contadorFrames = 0;     // Controla a velocidade da troca de frames
   velocidadeAnimacao = 5; // Quanto menor, mais rápida é a animação
   gravidade = 0.4;
+  levouDano = false;
+  framesDanoTotal = 10;
+  framesDanoAtual = 10;
 
   constructor({ x, y, largura = 32, altura = 32, imgskin, vida = 1, velocidade = 4, frames_totaisX, frames_totaisY } = {}) {
     this.largura = largura;
@@ -50,6 +53,20 @@ export class Enemy {
     this.vida -= 1;
     if (this.vida <= 0) {
       this.derrotado = true;
+    } else if (this.levouDano === false){
+      this.levouDano = true;
+    }
+    this.framesDanoAtual = this.framesDanoTotal;
+  }
+
+  atualizaDano() {
+    if (this.levouDano === true) {
+      this.framesDanoAtual--;
+
+      if (this.framesDanoAtual <= 0) {
+        this.framesDanoAtual = this.framesDanoTotal;
+        this.levouDano = false;
+      }
     }
   }
 
@@ -61,6 +78,12 @@ export class Enemy {
 
     if (!this.imgWidth || !this.imgHeight) return; // Evita desenhar sem as dimensões
 
+    ctx.save();
+    if (this.levouDano === true) {
+      ctx.filter = "brightness(200%)";
+    } else {
+      ctx.filter = "none";
+    }
     ctx.drawImage
     (
     this.img, 
@@ -73,5 +96,6 @@ export class Enemy {
     this.largura,                   
     this.altura                   
     );
+    ctx.restore();
   }
 }

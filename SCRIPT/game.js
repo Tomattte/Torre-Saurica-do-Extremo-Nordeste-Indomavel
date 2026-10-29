@@ -288,24 +288,24 @@ function init() {
         // Inicializando inimigos
 
         inimigos = [
-           /* new Galinha({
+            new Galinha({
             x: 300,
             y: 30,
             direcao: -1,
             imgskin: IMGS.galinha
-            }),*/
+            }),
             new Cacto({
             x: 100,
             y: 100,
             direcao: 1,
             imgskin: IMGS.cacto
-            })/*,
+            }),
             new Ptero({
             x: 320,
             y: 64,
             direcao: 1,
             imgskin: IMGS.ptero
-            })*/
+            })
         ];
 
         console.log("Jogo pronto");

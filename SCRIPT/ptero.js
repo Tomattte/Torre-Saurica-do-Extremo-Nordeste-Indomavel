@@ -34,6 +34,8 @@ export class Ptero extends Enemy {
 
   update(canvas, jogador, jogador2, p2) {
 
+    this.atualizaDano();
+
     //this.chaoY = jogo.chaoY;
     //this.larguraCenario = jogo.largura;
 

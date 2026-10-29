@@ -27,19 +27,21 @@ export class Cacto extends Enemy {
     this.framesParaTiroBai = 90;
   }
 
-  receberDano(quantidade = 1) {
+  receberDano() {
 
-    this.cabecas = Math.max(0, this.cabecas - quantidade);
+    this.cabecas -= 1;
     this.vida = this.cabecas;
 
     if (this.cabecas === 0) {
       this.derrotado = true;
+    } else {
+      this.levouDano = true;
     }
-
-    return true;
   }
 
   update(canvas, jogador, jogador2, p2) {
+
+    this.atualizaDano();
 
     // Calcula o jogador mais próximo e faz o cacto olhar pra ele
 
